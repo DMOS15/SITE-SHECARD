@@ -13,6 +13,7 @@
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="js/shared-config.js"></script>
   <script defer src="js/storage.js"></script>
   <script defer src="js/qrcode.js"></script>
   <script defer src="js/pdf.js"></script>
@@ -23,7 +24,7 @@
   <main class="page-shell history-page">
     <section class="intro"><div><p class="eyebrow">Biblioteca local</p><h1>Histórico de crachás.</h1><p class="intro-copy">Registros preservados neste navegador para consulta e reimpressão.</p></div><a href="index.html" class="button button-dark">＋ Novo crachá</a></section>
     <section class="history-panel">
-      <div class="history-toolbar"><div class="search-wrap"><span>🔍</span><input id="history-search" placeholder="Pesquisar por nome ou NOME_ARQUIVO"></div><button id="select-all" class="button button-light" type="button">Selecionar todos</button><span id="selection-count" class="selection-count">0 selecionados</span><button id="delete-selected" class="button button-danger" type="button" disabled>Excluir selecionados</button><button id="generate-pdf" class="button button-dark" disabled>Gerar PDF</button></div>
+      <div class="history-toolbar"><div class="search-wrap"><span>🔍</span><input id="history-search" placeholder="Pesquisar por nome, empresa ou NOME_ARQUIVO"></div><button id="select-all" class="button button-light" type="button">Selecionar todos</button><span id="selection-count" class="selection-count">0 selecionados</span><button id="delete-selected" class="button button-danger" type="button" disabled>Excluir selecionados</button><button id="export-history" class="button button-light" type="button">Exportar histórico</button><button id="generate-pdf" class="button button-dark" disabled>Gerar PDF</button></div>
       <div id="history-list"></div>
       <div id="history-empty" class="empty-history hidden"><div class="empty-icon">🔍</div><strong>Nenhum crachá encontrado</strong><span>Gere um novo crachá ou ajuste sua pesquisa.</span></div>
     </section>

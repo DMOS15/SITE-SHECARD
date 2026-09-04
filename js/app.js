@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   function renumberRows() { [...rowsBody.children].forEach((row, index) => { row.querySelector('.row-number').textContent = index + 1; }); }
   function openBulk() { rowsBody.innerHTML = ''; document.getElementById('bulk-result').textContent = ''; addBulkRow(); addBulkRow(); dialog.showModal(); rowsBody.querySelector('.bulk-name').focus(); }
-  function importBulk() {
+  async function importBulk() {
     const records = [...rowsBody.querySelectorAll('tr')].map((row) => ({ fileName: row.querySelector('.bulk-file').value.trim(), name: row.querySelector('.bulk-name').value.trim() })).filter((record) => record.fileName || record.name);
     if (!records.length) { alert('Preencha pelo menos uma linha.'); return; }
     let badges = getBadges(); let count = 0; let invalid = 0; let skipped = 0;
@@ -51,16 +51,16 @@ document.addEventListener('DOMContentLoaded', () => {
       const old = badges.find((item) => item.fileName.toLowerCase() === record.fileName.toLowerCase());
       if (old && !window.confirm(`Este crachá já existe: ${record.fileName}. Deseja substituir?`)) { skipped += 1; continue; }
       badges = badges.filter((item) => item.fileName.toLowerCase() !== record.fileName.toLowerCase());
-      badges.unshift({ id: old?.id || crypto.randomUUID(), name: record.name, fileName: record.fileName, url: badgeUrl(record.fileName), createdAt: old?.createdAt || new Date().toISOString() }); count += 1;
+      badges.unshift({ id: old?.id || crypto.randomUUID(), name: record.name, company: getBadgeSettings().companyName, fileName: record.fileName, url: badgeUrl(record.fileName), createdAt: old?.createdAt || new Date().toISOString() }); count += 1;
     }
-    saveBadges(badges); dialog.close(); rowsBody.innerHTML = ''; renderRecent(); alert(`✓ ${count} colaborador(es) importado(s)\n⚠ ${invalid} linha(s) inválida(s) ignorada(s)${skipped ? `\n↷ ${skipped} duplicado(s) mantido(s)` : ''}`);
+    try { await saveBadges(badges); dialog.close(); rowsBody.innerHTML = ''; renderRecent(); alert(`✓ ${count} colaborador(es) importado(s)\n⚠ ${invalid} linha(s) inválida(s) ignorada(s)${skipped ? `\n↷ ${skipped} duplicado(s) mantido(s)` : ''}`); } catch (error) { alert(error.message); }
   }
 
   fileInput.addEventListener('input', updateUrl); updateUrl();
-  form.addEventListener('submit', (event) => { event.preventDefault(); const name = nameInput.value.trim(); const fileName = fileInput.value.trim(); if (!name || !fileName) return; const existing = findBadge(fileName); if (existing && !window.confirm('Este crachá já existe. Deseja substituir?')) return; const badge = { id: existing ? existing.id : crypto.randomUUID(), name, fileName, url: badgeUrl(fileName), createdAt: existing ? existing.createdAt : new Date().toISOString() }; saveBadges([badge, ...getBadges().filter((item) => item.fileName.toLowerCase() !== fileName.toLowerCase())]); nameInput.value = ''; fileInput.value = ''; updateUrl(); showBadge(badge); renderRecent(); });
+  form.addEventListener('submit', async (event) => { event.preventDefault(); const name = nameInput.value.trim(); const fileName = fileInput.value.trim(); if (!name || !fileName) return; const existing = findBadge(fileName); if (existing && !window.confirm('Este crachá já existe. Deseja substituir?')) return; const badge = { id: existing ? existing.id : crypto.randomUUID(), name, company: getBadgeSettings().companyName, fileName, url: badgeUrl(fileName), createdAt: existing ? existing.createdAt : new Date().toISOString() }; try { await saveBadges([badge, ...getBadges().filter((item) => item.fileName.toLowerCase() !== fileName.toLowerCase())]); nameInput.value = ''; fileInput.value = ''; updateUrl(); showBadge(badge); renderRecent(); } catch (error) { alert(error.message); } });
   document.getElementById('print-button').addEventListener('click', () => { if (!current) return; document.body.classList.add('print-mode'); setTimeout(() => { window.print(); document.body.classList.remove('print-mode'); }, 100); });
   document.getElementById('single-pdf').addEventListener('click', () => { const card = previewArea.querySelector('.badge-card'); if (current && card) generatePdf([current], document.getElementById('export-stage'), card); });
   document.getElementById('open-bulk').addEventListener('click', openBulk); document.getElementById('close-bulk').addEventListener('click', () => dialog.close()); document.getElementById('cancel-bulk').addEventListener('click', () => dialog.close()); document.getElementById('clear-bulk').addEventListener('click', () => { rowsBody.innerHTML = ''; addBulkRow(); }); document.getElementById('process-bulk').addEventListener('click', importBulk);
   function renderRecent() { const list = document.getElementById('recent-list'); const badges = getBadges().slice(0, 3); list.innerHTML = badges.length ? badges.map((badge) => `<a class="recent-item" href="index.html?badge=${encodeURIComponent(badge.id)}"><span class="recent-avatar">${badge.name[0]}</span><span><strong>${badge.name}</strong><small>${badge.fileName} · ${new Date(badge.createdAt).toLocaleDateString('pt-BR')}</small></span></a>`).join('') : '<div class="empty-history"><strong>Nenhum crachá gerado ainda.</strong><span>Adicione o primeiro colaborador acima.</span></div>'; }
-  const requested = new URLSearchParams(location.search).get('badge'); if (requested) { const found = getBadges().find((badge) => badge.id === requested); if (found) showBadge(found); } renderRecent();
+  loadBadges().then(() => { const requested = new URLSearchParams(location.search).get('badge'); if (requested) { const found = getBadges().find((badge) => badge.id === requested); if (found) showBadge(found); } renderRecent(); }).catch((error) => { alert(error.message); });
 });

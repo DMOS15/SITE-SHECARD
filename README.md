@@ -47,4 +47,14 @@ js/historico.js
 assets/logo.png
 ```
 
-A versao sem backend nao acessa SharePoint diretamente. Para usar dados do Excel, copie as duas colunas e cole no cadastro em massa.
+## Histórico compartilhado
+
+O histórico usa Google Sheets + Google Apps Script como armazenamento compartilhado. Ele não depende do `localStorage`, portanto os registros ficam disponíveis para toda a equipe, mesmo após limpar o navegador ou trocar de computador.
+
+1. Crie uma planilha no Google Drive.
+2. Abra **Extensões > Apps Script**, cole o conteúdo de `backend/Code.gs` e salve.
+3. Em **Implantar > Nova implantação**, escolha **Aplicativo da web**, execute como sua conta e permita acesso a **Qualquer pessoa**.
+4. Copie a URL `/exec` gerada para `js/shared-config.js`, substituindo `COLE_A_URL_DO_GOOGLE_APPS_SCRIPT_AQUI`.
+5. Publique os arquivos no GitHub Pages. A planilha será criada automaticamente com a aba `Historico`.
+
+O histórico oferece pesquisa por nome, empresa e NOME_ARQUIVO, exclusão individual, exclusão em massa, seleção de todos, exportação CSV e geração de PDF.
