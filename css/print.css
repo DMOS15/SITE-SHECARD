@@ -1,0 +1,24 @@
+@media print {
+  @page { size: A6 portrait; margin: 0; }
+  html, body { width: 105mm; height: 148mm; margin: 0; background: #fff !important; }
+  body > * { display: none !important; }
+  body.print-mode { display: block !important; background: #fff !important; }
+  body.print-mode main { display: block !important; width: 105mm; height: 148mm; margin: 0; padding: 0; }
+  body.print-mode .preview-panel { display: block !important; width: 105mm; height: 148mm; margin: 0; padding: 0; border: 0; border-radius: 0; background: #fff; box-shadow: none; }
+  body.print-mode .preview-heading,
+  body.print-mode .preview-actions,
+  body.print-mode .form-panel,
+  body.print-mode .intro,
+  body.print-mode .recent-section { display: none !important; }
+  body.print-mode .workspace { display: block !important; width: 105mm; height: 148mm; }
+  body.print-mode .preview-area { display: block !important; min-height: 0; width: 105mm; height: 148mm; }
+  body.print-mode .badge-card { display: block !important; width: 105mm !important; height: 148mm !important; box-shadow: none; }
+  body.print-mode .badge-name { top: 10mm; font-size: 7mm; }
+  body.print-mode .badge-buildings { top: 28mm; left: 8mm; right: 8mm; height: 17mm; }
+  body.print-mode .badge-card:before { top: 39%; height: 43mm; }
+  body.print-mode .badge-qr { top: 68mm; padding: 2mm; }
+  body.print-mode .badge-qr img,
+  body.print-mode .badge-qr canvas { width: 42mm !important; height: 42mm !important; }
+  body.print-mode .badge-logo { left: 7mm; bottom: 7mm; width: 32mm; height: auto; }
+  body.print-mode .badge-fallback-logo { left: 7mm; bottom: 8mm; font-size: 4mm; }
+}

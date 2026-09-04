@@ -1,0 +1,41 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SHECARD | Gerar crachá</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/print.css">
+  <link rel="stylesheet" href="css/fixes.css">
+  <link rel="stylesheet" href="css/bulk.css">
+  <link rel="stylesheet" href="css/bulk-result.css">
+  <link rel="stylesheet" href="css/badge-premium.css">
+  <link rel="stylesheet" href="css/badge-settings.css">
+  <link rel="stylesheet" href="css/badge-layout.css?v=2"><link rel="stylesheet" href="css/flow-fix.css?v=1">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script defer src="js/storage.js"></script>
+  <script defer src="js/qrcode.js"></script>
+  <script defer src="js/pdf.js"></script>
+  <script defer src="js/app.js"></script>
+</head>
+<body data-page="home">
+  <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">S</span><span>SHE<span class="brand-accent">CARD</span></span></a><nav><a class="active" href="index.html">Gerar crachá</a><a href="historico.html">Histórico</a><a href="configuracoes.html">Configurações</a></nav><span class="status-dot">Sistema local</span></header>
+  <main class="page-shell">
+    <section class="intro"><div><p class="eyebrow">Centro de operações</p><h1>Gere crachás com precisão.</h1><p class="intro-copy">Escolha um colaborador, confira o layout e gere o PDF quando estiver pronto.</p></div><div class="quick-note"><span></span><strong>QR Code validado</strong><small>GitHub Pages · .html</small></div></section>
+    <div class="workspace">
+      <section class="panel form-panel">
+        <div class="panel-heading"><div><p class="eyebrow">Cadastro</p><h2>Adicionar colaborador</h2></div><span class="step">01</span></div>
+        <form id="badge-form" novalidate><label>Nome do colaborador<input id="name" required placeholder="Ex.: ANA MARTINS" autocomplete="off"></label><label>NOME_ARQUIVO<input id="file-name" required placeholder="Ex.: 12345" autocomplete="off"><small>O sufixo <code>.html</code> é adicionado automaticamente.</small></label><div class="url-preview"><span>Destino do QR Code</span><code id="url-preview">https://dmos15.github.io/treinamentos-colaboradores/colaboradores/[NOME_ARQUIVO].html</code></div><button class="button button-dark" type="submit">Adicionar crachá <span>＋</span></button></form>
+        <div class="bulk-box"><div><strong>Cadastro em massa</strong><small>Cole as duas colunas copiadas do Excel.</small></div><button id="open-bulk" class="button button-light" type="button">Colar dados</button></div>
+      </section>
+      <section class="preview-panel"><div class="preview-heading"><div><p class="eyebrow">Pré-visualização</p><span>Layout final do crachá</span></div><span class="format-tag">A6 vertical</span></div><div id="preview-area" class="preview-area"><div class="empty-preview"><div class="empty-icon">＋</div><strong>Seu crachá aparecerá aqui</strong><span>Adicione um colaborador para visualizar.</span></div></div><div id="preview-actions" class="preview-actions hidden"><button id="print-button" class="button button-dark">Imprimir</button><button id="single-pdf" class="button button-light">Gerar PDF</button></div></section>
+    </div>
+    <section class="recent-section"><div class="section-heading"><div><p class="eyebrow">Atividade recente</p><h2>Últimos crachás</h2></div><a href="historico.html" class="text-link">Ver histórico <span>→</span></a></div><div id="recent-list" class="recent-list"></div></section>
+  </main>
+  <div id="export-stage" class="export-stage" aria-hidden="true"></div>
+  <dialog id="bulk-dialog"><div class="dialog-head"><div><p class="eyebrow">Cadastro em massa</p><h2>Importar dados do Excel</h2></div><button id="close-bulk" class="icon-button" type="button">×</button></div><p class="dialog-help">Cole diretamente as duas colunas da planilha. Aceitamos <strong>Nome + Nome_Arquivo</strong> ou <strong>Nome_Arquivo + Nome</strong>, separados por TAB.</p><div class="sheet-toolbar"><span class="sheet-status"><i></i>Planilha pronta para edição</span><button id="clear-bulk" class="button button-light" type="button">Limpar tabela</button></div><div class="sheet-wrap"><table class="sheet-table"><thead><tr><th class="row-number">#</th><th>Nome <b>*</b></th><th>Nome_Arquivo <b>*</b></th><th class="row-action">&nbsp;</th></tr></thead><tbody id="bulk-rows"></tbody></table></div><div id="bulk-result" class="bulk-result" aria-live="polite"></div><div class="dialog-actions"><span id="bulk-count" class="sheet-count">0 linhas preenchidas</span><button id="cancel-bulk" class="button button-light">Cancelar</button><button id="process-bulk" class="button button-dark">Colar e importar</button></div></dialog>
+</body>
+</html>
+
