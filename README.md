@@ -58,3 +58,13 @@ O histórico usa Google Sheets + Google Apps Script como armazenamento compartil
 5. Publique os arquivos no GitHub Pages. A planilha será criada automaticamente com a aba `Historico`.
 
 O histórico oferece pesquisa por nome, empresa e NOME_ARQUIVO, exclusão individual, exclusão em massa, seleção de todos, exportação CSV e geração de PDF.
+
+## Layouts compartilhados
+
+Os layouts também usam o mesmo Google Apps Script. A aba `Layouts` é criada automaticamente com estas colunas:
+
+`id`, `nome`, `empresa`, `mostrarLogo`, `logoUrl`, `corPrimaria`, `corSecundaria`, `qrSize`, `template`, `criadoEm`, `atualizadoEm`, `isDefault`.
+
+O editor permite criar, editar, excluir, duplicar, usar e definir o layout padrão. Ao criar um crachá, o site carrega automaticamente o layout marcado como padrão. O `localStorage` só é usado como cache temporário quando a API fica indisponível; a fonte oficial permanece no Google Apps Script.
+
+Depois de atualizar o arquivo `backend/Code.gs`, é necessário criar uma nova versão da implantação do Apps Script em **Implantar > Gerenciar implantações > Editar > Nova versão**. A URL `/exec` pode permanecer a mesma.
