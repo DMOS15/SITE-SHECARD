@@ -8,18 +8,19 @@ async function requestSharedHistory(payload = null) {
 	const response = await fetch(SHARED_HISTORY_API, payload ? { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) } : { cache: 'no-store' });
 	if (!response.ok) throw new Error(`Erro na API compartilhada (${response.status}).`);
 	const result = await response.json();
+	console.log('Resposta da API SHECARD:', result);
 	if (!result.ok) throw new Error(result.error || 'A API compartilhada recusou a operação.');
-	return result.records || [];
+	return result;
 }
 
-async function loadBadges() { sharedBadges = await requestSharedHistory(); historyLoaded = true; return sharedBadges; }
+async function loadBadges() { const result = await requestSharedHistory(); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
 function getBadges() { return sharedBadges; }
-async function saveBadges(badges) { sharedBadges = await requestSharedHistory({ action: 'upsert', records: badges }); historyLoaded = true; return sharedBadges; }
-async function deleteBadges(ids) { sharedBadges = await requestSharedHistory({ action: 'delete', ids }); historyLoaded = true; return sharedBadges; }
+async function saveBadges(badges) { const result = await requestSharedHistory({ action: 'upsert', records: badges }); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
+async function deleteBadges(ids) { const result = await requestSharedHistory({ action: 'delete', ids }); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
 function layoutToSettings(layout) { try { return JSON.parse(layout.template || '{}'); } catch { return {}; } }
 function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; return window.SHECARD_ACTIVE_LAYOUT; }
 async function loadLayouts() {
-	try { const result = await requestSharedHistory(); sharedLayouts = result.layouts || []; localStorage.setItem('shecard_layouts_cache', JSON.stringify(sharedLayouts)); }
+	try { const response = await requestSharedHistory(); console.log('Layouts recebidos:', response); if (!Array.isArray(response.layouts)) throw new Error('A API não retornou "layouts". Reimplante o Code.gs atualizado.'); sharedLayouts = response.layouts; localStorage.setItem('shecard_layouts_cache', JSON.stringify(sharedLayouts)); }
 	catch (error) { try { sharedLayouts = JSON.parse(localStorage.getItem('shecard_layouts_cache') || '[]'); } catch { sharedLayouts = []; } if (!sharedLayouts.length) throw error; }
 	activateLayout(sharedLayouts.find((layout) => layout.isDefault) || sharedLayouts[0] || null); return sharedLayouts;
 }

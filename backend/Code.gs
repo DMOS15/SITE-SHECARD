@@ -62,7 +62,7 @@ function upsertLayouts_(current, incoming) {
 }
 
 function setDefaultLayout_(current, id) {
-  return current.map((layout) => ({ ...layout, isDefault: layout.id === id, updatedAt: layout.id === id ? new Date().toISOString() : layout.updatedAt }));
+  return current.map((layout) => ({ ...layout, isDefault: layout.id === id, atualizadoEm: layout.id === id ? new Date().toISOString() : layout.atualizadoEm }));
 }
 
 function writeLayouts_(layouts) {
@@ -93,7 +93,7 @@ function normalizeRecords_(records) {
 function upsertRecords_(current, incoming) {
   const next = current.slice();
   normalizeRecords_(incoming).forEach((record) => {
-    const index = next.findIndex((item) => item.nome.toLowerCase() === record.nome.toLowerCase());
+    const index = next.findIndex((item) => item.fileName.toLowerCase() === record.fileName.toLowerCase());
     if (index >= 0) next[index] = record;
     else next.unshift(record);
   });
