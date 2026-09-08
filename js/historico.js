@@ -48,5 +48,5 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8' })); link.download = `historico-shecard-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
   };
   search.addEventListener('input', render);
-  loadBadges().then(render).catch((error) => { list.innerHTML = `<div class="empty-history"><strong>Não foi possível carregar o histórico compartilhado.</strong><span>${error.message}</span></div>`; });
+  Promise.all([loadBadges(), loadLayouts()]).then(render).catch((error) => { list.innerHTML = `<div class="empty-history"><strong>Não foi possível carregar o histórico compartilhado.</strong><span>${error.message}</span></div>`; });
 });

@@ -18,11 +18,11 @@ function getBadges() { return sharedBadges; }
 async function saveBadges(badges) { const result = await requestSharedHistory({ action: 'upsert', records: badges }); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
 async function deleteBadges(ids) { const result = await requestSharedHistory({ action: 'delete', ids }); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
 function layoutToSettings(layout) { try { return JSON.parse(layout.template || '{}'); } catch { return {}; } }
-function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; return window.SHECARD_ACTIVE_LAYOUT; }
+function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; if (layout) localStorage.setItem('shecard_active_layout_id', layout.id); else localStorage.removeItem('shecard_active_layout_id'); return window.SHECARD_ACTIVE_LAYOUT; }
 async function loadLayouts() {
 	try { const response = await requestSharedHistory(); console.log('Layouts recebidos:', response); if (!Array.isArray(response.layouts)) throw new Error('A API não retornou "layouts". Reimplante o Code.gs atualizado.'); sharedLayouts = response.layouts; localStorage.setItem('shecard_layouts_cache', JSON.stringify(sharedLayouts)); }
 	catch (error) { try { sharedLayouts = JSON.parse(localStorage.getItem('shecard_layouts_cache') || '[]'); } catch { sharedLayouts = []; } if (!sharedLayouts.length) throw error; }
-	activateLayout(sharedLayouts.find((layout) => layout.isDefault) || sharedLayouts[0] || null); return sharedLayouts;
+	const activeId = localStorage.getItem('shecard_active_layout_id'); activateLayout(sharedLayouts.find((layout) => layout.id === activeId) || sharedLayouts.find((layout) => layout.isDefault) || sharedLayouts[0] || null); return sharedLayouts;
 }
 function getLayouts() { return sharedLayouts; }
 async function saveLayout(layout) { const result = await requestSharedHistory({ action: 'layout-upsert', layout }); sharedLayouts = result.layouts || []; localStorage.setItem('shecard_layouts_cache', JSON.stringify(sharedLayouts)); return sharedLayouts; }
