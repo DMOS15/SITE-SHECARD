@@ -1,5 +1,5 @@
 const SHEET_NAME = 'Historico';
-const HEADERS = ['id', 'name', 'company', 'fileName', 'url', 'createdAt'];
+const HEADERS = ['id', 'name', 'company', 'fileName', 'url', 'layoutId', 'layoutName', 'layoutTemplate', 'photoData', 'asoValidUntil', 'createdAt'];
 const LAYOUTS_SHEET_NAME = 'Layouts';
 const LAYOUT_HEADERS = ['id', 'nome', 'empresa', 'mostrarLogo', 'logoUrl', 'corPrimaria', 'corSecundaria', 'qrSize', 'template', 'criadoEm', 'atualizadoEm', 'isDefault'];
 
@@ -83,11 +83,14 @@ function getSheet_() {
 
 function readRecords_() {
   const values = getSheet_().getDataRange().getValues();
-  return values.slice(1).filter((row) => row[0]).map((row) => ({ id: String(row[0]), name: String(row[1] || ''), company: String(row[2] || ''), fileName: String(row[3] || ''), url: String(row[4] || ''), createdAt: String(row[5] || '') }));
+  const isLegacy = !String(values[0]?.[5] || '').toLowerCase().includes('layout');
+  return values.slice(1).filter((row) => row[0]).map((row) => isLegacy
+    ? ({ id: String(row[0]), name: String(row[1] || ''), company: String(row[2] || ''), fileName: String(row[3] || ''), url: String(row[4] || ''), layoutId: '', layoutName: '', layoutTemplate: '', photoData: '', asoValidUntil: '', createdAt: String(row[5] || '') })
+    : ({ id: String(row[0]), name: String(row[1] || ''), company: String(row[2] || ''), fileName: String(row[3] || ''), url: String(row[4] || ''), layoutId: String(row[5] || ''), layoutName: String(row[6] || ''), layoutTemplate: String(row[7] || ''), photoData: String(row[8] || ''), asoValidUntil: String(row[9] || ''), createdAt: String(row[10] || '') }));
 }
 
 function normalizeRecords_(records) {
-  return records.map((record) => ({ id: String(record.id || Utilities.getUuid()), name: String(record.name || ''), company: String(record.company || ''), fileName: String(record.fileName || ''), url: String(record.url || ''), createdAt: String(record.createdAt || new Date().toISOString()) })).filter((record) => record.name && record.fileName);
+  return records.map((record) => ({ id: String(record.id || Utilities.getUuid()), name: String(record.name || ''), company: String(record.company || ''), fileName: String(record.fileName || ''), url: String(record.url || ''), layoutId: String(record.layoutId || ''), layoutName: String(record.layoutName || ''), layoutTemplate: String(record.layoutTemplate || ''), photoData: String(record.photoData || ''), asoValidUntil: String(record.asoValidUntil || ''), createdAt: String(record.createdAt || new Date().toISOString()) })).filter((record) => record.name && record.fileName);
 }
 
 function upsertRecords_(current, incoming) {

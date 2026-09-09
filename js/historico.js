@@ -29,11 +29,12 @@ document.addEventListener('DOMContentLoaded', () => {
     visible.forEach((badge) => {
       const row = document.createElement('div');
       row.className = 'history-item';
-      row.innerHTML = `<input class="check" type="checkbox" data-id="${badge.id}"><div class="history-main"><strong></strong><small></small></div><time class="history-date"></time><div class="history-actions"><button class="button button-light use-button">Usar</button><button class="button button-light delete-button">Excluir</button></div>`;
+      row.innerHTML = `<input class="check" type="checkbox" data-id="${badge.id}"><div class="history-main"><strong></strong><small></small><em class="history-layout"></em></div><time class="history-date"></time><div class="history-actions"><button class="button button-light use-button">Usar</button><button class="button button-light delete-button">Excluir</button></div>`;
       row.querySelector('strong').textContent = badge.name;
       row.querySelector('small').textContent = `${badge.company || 'Empresa não informada'} · ${badge.fileName}.html`;
+      row.querySelector('.history-layout').textContent = `Layout: ${badge.layoutName || 'Layout padrão'}`;
       row.querySelector('time').textContent = new Date(badge.createdAt).toLocaleString('pt-BR');
-      row.querySelector('.use-button').onclick = () => { location.href = `index.html?badge=${encodeURIComponent(badge.id)}`; };
+      row.querySelector('.use-button').onclick = () => { activateBadgeLayout(badge); location.href = `index.html?badge=${encodeURIComponent(badge.id)}`; };
       row.querySelector('.delete-button').onclick = () => removeBadges([badge.id]);
       row.querySelector('.check').onchange = updateSelection;
       list.appendChild(row);
@@ -43,7 +44,7 @@ document.addEventListener('DOMContentLoaded', () => {
   selectAll.onclick = () => { const checkboxes = [...document.querySelectorAll('.check')]; const shouldSelect = checkboxes.some((checkbox) => !checkbox.checked); checkboxes.forEach((checkbox) => { checkbox.checked = shouldSelect; }); updateSelection(); };
   deleteSelected.onclick = () => removeBadges(selectedIds());
   exportHistory.onclick = () => {
-    const rows = [['Nome', 'Empresa', 'Nome_Arquivo', 'URL', 'Data']].concat(getBadges().map((badge) => [badge.name, badge.company || '', badge.fileName, badge.url, new Date(badge.createdAt).toLocaleString('pt-BR')]));
+    const rows = [['Nome', 'Empresa', 'Nome_Arquivo', 'Layout', 'URL', 'Data']].concat(getBadges().map((badge) => [badge.name, badge.company || '', badge.fileName, badge.layoutName || 'Layout padrão', badge.url, new Date(badge.createdAt).toLocaleString('pt-BR')]));
     const csv = rows.map((row) => row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(';')).join('\r\n');
     const link = document.createElement('a'); link.href = URL.createObjectURL(new Blob([`\ufeff${csv}`], { type: 'text/csv;charset=utf-8' })); link.download = `historico-shecard-${new Date().toISOString().slice(0, 10)}.csv`; link.click(); URL.revokeObjectURL(link.href);
   };

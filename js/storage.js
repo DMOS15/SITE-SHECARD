@@ -19,6 +19,8 @@ async function saveBadges(badges) { const result = await requestSharedHistory({ 
 async function deleteBadges(ids) { const result = await requestSharedHistory({ action: 'delete', ids }); sharedBadges = result.records || []; historyLoaded = true; return sharedBadges; }
 function layoutToSettings(layout) { try { return JSON.parse(layout.template || '{}'); } catch { return {}; } }
 function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; if (layout) localStorage.setItem('shecard_active_layout_id', layout.id); else localStorage.removeItem('shecard_active_layout_id'); return window.SHECARD_ACTIVE_LAYOUT; }
+function activateBadgeLayout(badge) { if (!badge) return null; if (badge.layoutTemplate) return activateLayout({ id: badge.layoutId || `history-${badge.id}`, nome: badge.layoutName || 'Layout do histórico', template: badge.layoutTemplate }); const layout = sharedLayouts.find((item) => item.id === badge.layoutId || item.nome === badge.layoutName); return activateLayout(layout || null); }
+function getActiveLayoutRecord() { return window.SHECARD_ACTIVE_LAYOUT_RECORD || null; }
 async function loadLayouts() {
 	try { const response = await requestSharedHistory(); console.log('Layouts recebidos:', response); if (!Array.isArray(response.layouts)) throw new Error('A API não retornou "layouts". Reimplante o Code.gs atualizado.'); sharedLayouts = response.layouts; localStorage.setItem('shecard_layouts_cache', JSON.stringify(sharedLayouts)); }
 	catch (error) { try { sharedLayouts = JSON.parse(localStorage.getItem('shecard_layouts_cache') || '[]'); } catch { sharedLayouts = []; } if (!sharedLayouts.length) throw error; }
