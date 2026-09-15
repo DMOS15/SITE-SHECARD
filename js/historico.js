@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
     selectAll.textContent = allVisibleSelected ? 'Desmarcar todos' : 'Selecionar todos';
     generate.disabled = ids.length === 0;
     deleteSelected.disabled = ids.length === 0;
-    generate.onclick = () => generatePdf(ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean));
+    generate.onclick = () => { const cards = ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean).map((badge) => createBadgeElement(badge)); generateBadgePDF(cards, document.getElementById('pdf-export-container')); };
   }
   async function removeBadges(ids) {
     if (!ids.length || !confirm(`Excluir ${ids.length} crachá(s) selecionado(s)?`)) return;

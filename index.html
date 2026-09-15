@@ -11,7 +11,7 @@
   <link rel="stylesheet" href="css/bulk-result.css">
   <link rel="stylesheet" href="css/badge-premium.css">
   <link rel="stylesheet" href="css/badge-settings.css">
-  <link rel="stylesheet" href="css/badge-layout.css?v=2"><link rel="stylesheet" href="css/flow-fix.css?v=1">
+  <link rel="stylesheet" href="css/badge-layout.css?v=2"><link rel="stylesheet" href="css/flow-fix.css?v=1"><link rel="stylesheet" href="css/layer-editor.css?v=1">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -35,7 +35,7 @@
     </div>
     <section class="recent-section"><div class="section-heading"><div><p class="eyebrow">Atividade recente</p><h2>Últimos crachás</h2></div><a href="historico.html" class="text-link">Ver histórico <span>→</span></a></div><div id="recent-list" class="recent-list"></div></section>
   </main>
-  <div id="export-stage" class="export-stage" aria-hidden="true"></div>
+  <div id="pdf-export-container" class="export-stage" aria-hidden="true"></div>
   <dialog id="bulk-dialog"><div class="dialog-head"><div><p class="eyebrow">Cadastro em massa</p><h2>Importar dados do Excel</h2></div><button id="close-bulk" class="icon-button" type="button">×</button></div><p class="dialog-help">Cole Nome, Nome_Arquivo e, opcionalmente, Validade ASO separados por TAB.</p><div class="sheet-toolbar"><span class="sheet-status"><i></i>Planilha pronta para edição</span><button id="clear-bulk" class="button button-light" type="button">Limpar tabela</button></div><div class="sheet-wrap"><table class="sheet-table"><thead><tr><th class="row-number">#</th><th>Nome <b>*</b></th><th>Nome_Arquivo <b>*</b></th><th>Validade ASO</th><th class="row-action">&nbsp;</th></tr></thead><tbody id="bulk-rows"></tbody></table></div><div id="bulk-result" class="bulk-result" aria-live="polite"></div><div class="dialog-actions"><span id="bulk-count" class="sheet-count">0 linhas preenchidas</span><button id="cancel-bulk" class="button button-light">Cancelar</button><button id="process-bulk" class="button button-dark">Colar e importar</button></div></dialog>
 </body>
 </html>
