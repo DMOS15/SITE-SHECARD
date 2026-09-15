@@ -11,36 +11,20 @@ function preparePdfContainer(container) {
 	Object.assign(container.style, { position: 'fixed', left: '0px', top: '0px', margin: '0', padding: '0', overflow: 'visible', display: 'block', visibility: 'visible', pointerEvents: 'none', zIndex: '2147483647', background: 'transparent' });
 }
 
-async function captureRenderedCard(card, container, saveDebug = false) {
+async function captureRenderedCard(card, container) {
 	preparePdfContainer(container);
 	const wasDisconnected = !card.isConnected;
 	if (wasDisconnected) container.appendChild(card);
-	const clone = card.cloneNode(true);
 	const sourceRect = card.getBoundingClientRect();
-	const width = card.offsetWidth || sourceRect.width;
-	const height = card.offsetHeight || sourceRect.height;
-	clone.style.setProperty('position', 'relative', 'important');
-	clone.style.setProperty('left', '0px', 'important');
-	clone.style.setProperty('top', '0px', 'important');
-	clone.style.setProperty('margin', '0', 'important');
-	clone.style.setProperty('transform', 'none', 'important');
-	clone.style.setProperty('width', `${width}px`, 'important');
-	clone.style.setProperty('height', `${height}px`, 'important');
-	container.style.width = `${width}px`;
-	container.style.height = `${height}px`;
-	container.appendChild(clone);
-	if (wasDisconnected) card.remove();
 	console.log('BoundingRect', sourceRect);
 	console.log('Card rect', card.getBoundingClientRect());
 	console.log('Card offset', { offsetLeft: card.offsetLeft, offsetTop: card.offsetTop, offsetWidth: card.offsetWidth, offsetHeight: card.offsetHeight });
 	console.log('PDF source', card);
-	console.log('PDF clone BoundingRect', clone.getBoundingClientRect());
-	console.log('PDF clone offset', { offsetLeft: clone.offsetLeft, offsetTop: clone.offsetTop, transform: getComputedStyle(clone).transform });
 	await document.fonts?.ready;
 	await new Promise((resolve) => setTimeout(resolve, 100));
-	const canvas = await html2canvas(clone, { scale: 3, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
+	const canvas = await html2canvas(card, { scale: 1, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
 	console.log('PDF canvas', { width: canvas.width, height: canvas.height });
-	if (saveDebug) { const debugLink = document.createElement('a'); debugLink.href = canvas.toDataURL('image/png'); debugLink.download = 'debug-export.png'; debugLink.click(); }
+	if (wasDisconnected) card.remove();
 	return canvas;
 }
 
@@ -49,28 +33,18 @@ async function generateBadgePDF(cards, target = null) {
 	if (!window.html2canvas || !window.jspdf?.jsPDF) { window.alert('A biblioteca de PDF ainda não foi carregada. Verifique a conexão com a internet e tente novamente.'); return; }
 	const container = getPdfContainer(target);
 	const { jsPDF } = window.jspdf;
-	const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-	const pageWidth = pdf.internal.pageSize.getWidth();
-	const pageHeight = pdf.internal.pageSize.getHeight();
-	const debugPdfBounds = Boolean(window.DEBUG_PDF_BOUNDS);
+	let pdf = null;
 	try {
 		for (let index = 0; index < cards.length; index += 1) {
-			if (index) pdf.addPage();
-			const canvas = await captureRenderedCard(cards[index], container, true);
+			const canvas = await captureRenderedCard(cards[index], container);
+			if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+			else pdf.addPage([canvas.width, canvas.height], 'portrait');
 			const image = canvas.toDataURL('image/png');
-			const maxCardWidth = pageWidth - 10;
-			const maxCardHeight = pageHeight - 10;
-			const ratio = Math.min(maxCardWidth / canvas.width, maxCardHeight / canvas.height);
-			const cardWidth = canvas.width * ratio;
-			const cardHeight = canvas.height * ratio;
-			const pdfX = (pageWidth - cardWidth) / 2;
-			const pdfY = (pageHeight - cardHeight) / 2;
 			console.log('Canvas size', canvas.width, canvas.height);
-			console.log('PDF position', { pdfX, pdfY, cardWidth, cardHeight, pageWidth, pageHeight });
-			if (debugPdfBounds) { pdf.setDrawColor(255, 0, 0); pdf.rect(0, 0, pageWidth, pageHeight); }
-			pdf.addImage(image, 'PNG', pdfX, pdfY, cardWidth, cardHeight);
+			console.log('PDF position', { pdfX: 0, pdfY: 0, cardWidth: canvas.width, cardHeight: canvas.height });
+			pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height);
 		}
-		pdf.save('Crachas.pdf');
+		if (pdf) pdf.save('Crachas.pdf');
 	} finally { container.innerHTML = ''; container.style.cssText = ''; }
 }
 
