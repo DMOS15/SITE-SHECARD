@@ -31,8 +31,11 @@ async function captureRenderedCard(card, container, saveDebug = false) {
 	container.appendChild(clone);
 	if (wasDisconnected) card.remove();
 	console.log('BoundingRect', sourceRect);
+	console.log('Card rect', card.getBoundingClientRect());
+	console.log('Card offset', { offsetLeft: card.offsetLeft, offsetTop: card.offsetTop, offsetWidth: card.offsetWidth, offsetHeight: card.offsetHeight });
 	console.log('PDF source', card);
 	console.log('PDF clone BoundingRect', clone.getBoundingClientRect());
+	console.log('PDF clone offset', { offsetLeft: clone.offsetLeft, offsetTop: clone.offsetTop, transform: getComputedStyle(clone).transform });
 	await document.fonts?.ready;
 	await new Promise((resolve) => setTimeout(resolve, 100));
 	const canvas = await html2canvas(clone, { scale: 3, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
@@ -49,7 +52,7 @@ async function generateBadgePDF(cards, target = null) {
 	const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
 	const pageWidth = pdf.internal.pageSize.getWidth();
 	const pageHeight = pdf.internal.pageSize.getHeight();
-	const debugPdfBounds = false;
+	const debugPdfBounds = Boolean(window.DEBUG_PDF_BOUNDS);
 	try {
 		for (let index = 0; index < cards.length; index += 1) {
 			if (index) pdf.addPage();
