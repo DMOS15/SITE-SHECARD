@@ -7,16 +7,19 @@ const BADGE_DEFAULTS = {
   zIndexes: { company: 1, photo: 2, qr: 3, name: 4, aso: 5, logo: 6 }
 };
 function getBadgeSettings() { const saved = window.SHECARD_ACTIVE_LAYOUT || {}; return { ...BADGE_DEFAULTS, ...saved, positions: { ...BADGE_DEFAULTS.positions, ...(saved.positions || {}) }, zIndexes: { ...BADGE_DEFAULTS.zIndexes, ...(saved.zIndexes || {}) } }; }
-function renderQr(container, url, size) {
+function renderQr(container, url, size, colorDark = '#000000', colorLight = '#FFFFFF') {
   const qrUrl = url || '';
   if (!container || !qrUrl) return;
   const render = () => {
     container.replaceChildren();
-    new QRCode(container, { text: qrUrl, width: size, height: size, colorDark: '#17221c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(container, { text: qrUrl, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
     const canvas = container.querySelector('canvas');
     const image = container.querySelector('img');
-    if (canvas) { canvas.width = size; canvas.height = size; canvas.style.setProperty('display', 'none', 'important'); canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
+    if (canvas) { canvas.style.setProperty('display', 'none', 'important'); canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
     if (image) { image.style.setProperty('display', 'block', 'important'); image.width = size; image.height = size; image.alt = 'QR Code'; }
+    console.log('QR src:', image?.src);
+    console.log('QR naturalWidth:', image?.naturalWidth);
+    console.log('QR naturalHeight:', image?.naturalHeight);
     console.log('QR URL:', qrUrl);
     console.log('QR Container:', container);
     console.log('QR Element:', container.querySelector('img, canvas, svg'));
