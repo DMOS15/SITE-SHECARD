@@ -6,6 +6,7 @@
 .layered-badge .badge-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center center!important}
 .layered-badge .badge-photo-placeholder{color:var(--badge-primary,#66783e)!important;font:700 12px/1 'Space Grotesk',sans-serif!important;letter-spacing:.08em;text-align:center!important}
 .layered-badge .badge-qr{display:flex!important;align-items:center!important;justify-content:center!important;padding:10px!important;margin:0!important}
-.layered-badge .badge-qr img{display:block!important;object-fit:contain!important}
+.layered-badge .badge-qr{width:calc(var(--badge-qr-size,243px) + 20px)!important;height:calc(var(--badge-qr-size,243px) + 20px)!important;min-width:243px!important;min-height:243px!important;flex:0 0 auto!important;overflow:visible!important;visibility:visible!important;opacity:1!important;position:absolute!important}
+.layered-badge .badge-qr img,.layered-badge .badge-qr canvas,.layered-badge .badge-qr svg{display:block!important;width:var(--badge-qr-size,243px)!important;height:var(--badge-qr-size,243px)!important;max-width:none!important;max-height:none!important;visibility:visible!important;opacity:1!important;object-fit:contain!important}
 .layered-badge .badge-logo{position:absolute!important;box-sizing:border-box!important;margin:0!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
 .layered-badge .badge-aso{display:block!important;white-space:nowrap!important;line-height:1.1!important}
