@@ -12,16 +12,22 @@ function doPost(event) {
   const lock = LockService.getScriptLock();
   lock.waitLock(30000);
   try {
-    let records = readRecords_();
-    let layouts = readLayouts_();
-    if (body.action === 'upsert') records = upsertRecords_(records, body.records || []);
-    if (body.action === 'delete') records = records.filter((record) => !(body.ids || []).includes(record.id));
-    if (body.action === 'layout-upsert') layouts = upsertLayouts_(layouts, body.layout);
-    if (body.action === 'layout-delete') layouts = layouts.filter((layout) => layout.id !== body.id);
-    if (body.action === 'layout-default') layouts = setDefaultLayout_(layouts, body.id);
-    writeRecords_(records);
-    writeLayouts_(layouts);
-    return jsonResponse({ ok: true, records, layouts });
+    if (body.action === 'upsert' || body.action === 'delete') {
+      let records = readRecords_();
+      if (body.action === 'upsert') records = upsertRecords_(records, body.records || []);
+      if (body.action === 'delete') records = records.filter((record) => !(body.ids || []).includes(record.id));
+      writeRecords_(records);
+      return jsonResponse({ ok: true, records });
+    }
+    if (body.action === 'layout-upsert' || body.action === 'layout-delete' || body.action === 'layout-default') {
+      let layouts = readLayouts_();
+      if (body.action === 'layout-upsert') layouts = upsertLayouts_(layouts, body.layout);
+      if (body.action === 'layout-delete') layouts = layouts.filter((layout) => layout.id !== body.id);
+      if (body.action === 'layout-default') layouts = setDefaultLayout_(layouts, body.id);
+      writeLayouts_(layouts);
+      return jsonResponse({ ok: true, layouts });
+    }
+    return jsonResponse({ ok: false, error: 'Ação não reconhecida.' });
   } catch (error) {
     return jsonResponse({ ok: false, error: error.message });
   } finally {

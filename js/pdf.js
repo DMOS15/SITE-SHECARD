@@ -88,6 +88,7 @@ async function captureRenderedCard(card, container) {
 
 async function generateBadgePDF(cards, target = null) {
 	if (!cards.length) return;
+	const started = performance.now();
 	if (!window.html2canvas || !window.jspdf?.jsPDF) { window.alert('A biblioteca de PDF ainda não foi carregada. Verifique a conexão com a internet e tente novamente.'); return; }
 	const container = getPdfContainer(target);
 	const { jsPDF } = window.jspdf;
@@ -108,7 +109,7 @@ async function generateBadgePDF(cards, target = null) {
 		}
 		if (pdf && processed) pdf.save('Crachas.pdf');
 		else throw new Error('Nenhum crachá pôde ser capturado.');
-	} finally { container.innerHTML = ''; container.style.cssText = ''; }
+	} finally { container.innerHTML = ''; container.style.cssText = ''; console.log(`PDF gerado em ${((performance.now() - started) / 1000).toFixed(2)}s`); }
 }
 
 async function printBadge(card, target = null) {

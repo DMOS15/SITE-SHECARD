@@ -10,24 +10,21 @@ function getBadgeSettings() { const saved = window.SHECARD_ACTIVE_LAYOUT || {}; 
 function renderQr(container, url, size, colorDark = '#000000', colorLight = '#FFFFFF') {
   const qrUrl = url || '';
   if (!container || !qrUrl) return;
+  const cache = window.SHECARD_QR_CACHE || (window.SHECARD_QR_CACHE = new Map());
+  const cacheKey = `${qrUrl}|${size}|${colorDark}|${colorLight}`;
+  if (container.dataset.qrKey === cacheKey && container.childElementCount) return;
   const render = () => {
+    const started = performance.now();
+    if (cache.has(cacheKey)) { container.replaceChildren(...cache.get(cacheKey).map((node) => node.cloneNode(true))); container.dataset.qrKey = cacheKey; return; }
     container.replaceChildren();
     new QRCode(container, { text: qrUrl, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
     const canvas = container.querySelector('canvas');
     const image = container.querySelector('img');
     if (image) { image.style.setProperty('display', 'block', 'important'); image.width = size; image.height = size; image.style.width = `${size}px`; image.style.height = `${size}px`; image.alt = 'QR Code'; if (canvas) canvas.remove(); }
     else if (canvas) { canvas.style.setProperty('display', 'block', 'important'); canvas.width = size; canvas.height = size; canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
-    console.log('QR canvas count:', container.querySelectorAll('canvas').length);
-    console.log('QR img count:', container.querySelectorAll('img').length);
-    console.log('QR src:', image?.src);
-    console.log('QR naturalWidth:', image?.naturalWidth);
-    console.log('QR naturalHeight:', image?.naturalHeight);
-    console.log('QR URL:', qrUrl);
-    console.log('QR Container:', container);
-    console.log('QR Element:', container.querySelector('img, canvas, svg'));
-    console.log('QR Width:', container.querySelector('img, canvas, svg')?.offsetWidth);
-    console.log('QR Height:', container.querySelector('img, canvas, svg')?.offsetHeight);
-    console.log('QR Renderizado:', container.innerHTML);
+    cache.set(cacheKey, [...container.childNodes].map((node) => node.cloneNode(true)));
+    container.dataset.qrKey = cacheKey;
+    console.log(`QR gerado em ${((performance.now() - started) / 1000).toFixed(3)}s`);
   };
   let attempts = 0;
   const renderWhenReady = () => {
