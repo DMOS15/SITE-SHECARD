@@ -15,8 +15,10 @@ function renderQr(container, url, size, colorDark = '#000000', colorLight = '#FF
     new QRCode(container, { text: qrUrl, width: size, height: size, colorDark, colorLight, correctLevel: QRCode.CorrectLevel.H });
     const canvas = container.querySelector('canvas');
     const image = container.querySelector('img');
-    if (canvas) { canvas.style.setProperty('display', 'none', 'important'); canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
-    if (image) { image.style.setProperty('display', 'block', 'important'); image.width = size; image.height = size; image.alt = 'QR Code'; }
+    if (image) { image.style.setProperty('display', 'block', 'important'); image.width = size; image.height = size; image.style.width = `${size}px`; image.style.height = `${size}px`; image.alt = 'QR Code'; if (canvas) canvas.remove(); }
+    else if (canvas) { canvas.style.setProperty('display', 'block', 'important'); canvas.width = size; canvas.height = size; canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
+    console.log('QR canvas count:', container.querySelectorAll('canvas').length);
+    console.log('QR img count:', container.querySelectorAll('img').length);
     console.log('QR src:', image?.src);
     console.log('QR naturalWidth:', image?.naturalWidth);
     console.log('QR naturalHeight:', image?.naturalHeight);
@@ -45,7 +47,7 @@ function createBadgeElement(badge, overrideSettings = null) {
   company.textContent = settings.companyName; person.textContent = badge.name; company.style.fontSize = `${settings.companySize}px`; person.style.fontSize = `${settings.nameSize}px`; company.style.color = settings.primaryColor; person.style.color = settings.textColor; if (!settings.showCompany) company.remove(); if (!settings.showName) person.remove();
   if (settings.showPhoto && (badge.photoData || badge.photoPlaceholder)) { if (badge.photoData) { const image = document.createElement('img'); image.src = badge.photoData; image.alt = `Foto de ${badge.name}`; photo.appendChild(image); } else { photo.textContent = 'FOTO'; photo.classList.add('badge-photo-placeholder'); } photo.style.width = `${settings.photoSize}px`; photo.style.height = `${settings.photoSize}px`; photo.style.setProperty('border-radius', `${settings.photoShape === 'square' ? 0 : settings.photoShape === 'rounded' ? 12 : 50}%`, 'important'); } else photo.remove();
   if (settings.showAso && badge.asoValidUntil) { aso.textContent = `VALIDADE: ${formatValidityDate(badge.asoValidUntil)}`; aso.style.fontSize = `${settings.asoSize}px`; aso.style.color = settings.textColor; } else aso.remove();
-  const size = Math.max(100, Math.min(300, Number(settings.qrSize) || 220)); qr.style.width = `${size + 20}px`; qr.style.height = `${size + 20}px`; qr.style.setProperty('--badge-qr-size', `${size}px`); qr.dataset.qrUrl = badge.url || ''; qr.dataset.qrSize = `${size}`; renderQr(qr, badge.url, size);
+  const size = Math.max(100, Math.min(300, Number(settings.qrSize) || 220)); qr.style.width = `${size}px`; qr.style.height = `${size}px`; qr.style.setProperty('--badge-qr-size', `${size}px`); qr.dataset.qrUrl = badge.url || ''; qr.dataset.qrSize = `${size}`; renderQr(qr, badge.url, size);
   Object.entries(elements).forEach(([key, element]) => { if (element.parentNode) applyLayerStyle(element, key, settings); });
   if (settings.showLogo) { const logo = document.createElement('img'); logo.className = 'badge-logo'; logo.src = settings.logoData || 'assets/logo.png'; logo.alt = 'Logo'; logo.style.setProperty('width', `${settings.logoWidth || 105}px`, 'important'); logo.style.setProperty('height', `${settings.logoHeight || 32}px`, 'important'); applyLayerStyle(logo, 'logo', settings); card.appendChild(logo); }
   if (settings.showFileName) { const file = document.createElement('small'); file.className = 'badge-file-name'; file.textContent = badge.fileName; card.appendChild(file); } return card;
