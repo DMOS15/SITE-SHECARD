@@ -17,6 +17,9 @@ function logCaptureGeometry(card) {
 	console.log('Capture geometry', { card: describe(card), photo: describe(card.querySelector('.badge-photo')), photoImage: describe(card.querySelector('.badge-photo img')), qr: describe(card.querySelector('.badge-qr')), qrImage: describe(card.querySelector('.badge-qr img')) });
 }
 
+const A4_WIDTH_MM = 210;
+const A4_HEIGHT_MM = 297;
+
 function waitForImages(root, timeout = 3000) {
 	return Promise.all([...root.querySelectorAll('img')].map((image) => new Promise((resolve, reject) => {
 		if (image.complete && image.naturalWidth > 0) { resolve(); return; }
@@ -34,11 +37,12 @@ function waitForQr(root, timeout = 5000) {
 	const qr = root.querySelector('.badge-qr');
 	if (!qr) throw new Error('QR Code não encontrado no DOM.');
 	return new Promise((resolve, reject) => {
+		const canvasHasPixels = (canvas) => { if (!canvas || !canvas.width || !canvas.height) return false; const data = canvas.getContext('2d').getImageData(0, 0, canvas.width, canvas.height).data; for (let index = 3; index < data.length; index += 4) if (data[index] > 0) return true; return false; };
 		const isReady = () => {
 			const image = qr.querySelector('img');
 			const canvas = qr.querySelector('canvas');
 			const svg = qr.querySelector('svg');
-			return image && image.complete && image.naturalWidth > 0 || canvas && canvas.width > 0 && canvas.height > 0 || svg && svg.getBoundingClientRect().width > 0 && svg.getBoundingClientRect().height > 0;
+			return image && image.complete && image.naturalWidth > 0 || canvasHasPixels(canvas) || svg && svg.getBoundingClientRect().width > 0 && svg.getBoundingClientRect().height > 0;
 		};
 		if (isReady()) { resolve(); return; }
 		const started = Date.now();
@@ -47,11 +51,27 @@ function waitForQr(root, timeout = 5000) {
 	});
 }
 
+function copyCanvasBitmaps(source, target) {
+	const sourceCanvases = [...source.querySelectorAll('canvas')];
+	const targetCanvases = [...target.querySelectorAll('canvas')];
+	sourceCanvases.forEach((sourceCanvas, index) => {
+		const targetCanvas = targetCanvases[index];
+		if (!targetCanvas || sourceCanvas.width === 0 || sourceCanvas.height === 0) return;
+		targetCanvas.width = sourceCanvas.width;
+		targetCanvas.height = sourceCanvas.height;
+		targetCanvas.getContext('2d').drawImage(sourceCanvas, 0, 0);
+	});
+}
+
 async function captureRenderedCard(card, container) {
 	preparePdfContainer(container);
 	const exportCard = card.cloneNode(true);
 	container.appendChild(exportCard);
 	try {
+		const qr = exportCard.querySelector('.badge-qr');
+		if (qr?.dataset.qrUrl) renderQr(qr, qr.dataset.qrUrl, Number(qr.dataset.qrSize) || 220);
+		await waitForQr(exportCard);
+		copyCanvasBitmaps(card, exportCard);
 		logCaptureGeometry(exportCard);
 		await Promise.race([document.fonts?.ready || Promise.resolve(), new Promise((resolve) => setTimeout(resolve, 3000))]);
 		await waitForQr(exportCard);
@@ -77,12 +97,12 @@ async function generateBadgePDF(cards, target = null) {
 		for (let index = 0; index < cards.length; index += 1) {
 			try {
 				const canvas = await captureRenderedCard(cards[index], container);
-				if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-				else pdf.addPage([canvas.width, canvas.height], 'portrait');
+				if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+				else pdf.addPage('a4', 'portrait');
 				const image = canvas.toDataURL('image/png');
 				console.log('Canvas size', canvas.width, canvas.height);
-				console.log('PDF position', { pdfX: 0, pdfY: 0, cardWidth: canvas.width, cardHeight: canvas.height });
-				pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height);
+				console.log('PDF position', { pdfX: 0, pdfY: 0, pageWidth: A4_WIDTH_MM, pageHeight: A4_HEIGHT_MM });
+				pdf.addImage(image, 'PNG', 0, 0, A4_WIDTH_MM, A4_HEIGHT_MM, undefined, 'FAST');
 				processed += 1;
 			} catch (error) { console.error('Erro ao processar crachá:', cards[index].dataset.badgeId, error); }
 		}
@@ -98,7 +118,7 @@ async function printBadge(card, target = null) {
 	try {
 		const canvas = await captureRenderedCard(card, container);
 		const image = canvas.toDataURL('image/png');
-		printWindow.document.write(`<html><head><title>Imprimir crachá</title><style>@page{size:A6 portrait;margin:0}html,body{margin:0;width:105mm;height:148mm}img{display:block;width:105mm;height:148mm;object-fit:contain}</style></head><body><img src="${image}" alt="Crachá"></body></html>`);
+		printWindow.document.write(`<html><head><title>Imprimir crachá</title><style>@page{size:A4 portrait;margin:0}html,body{margin:0;width:210mm;height:297mm}img{display:block;width:210mm;height:297mm;object-fit:fill}</style></head><body><img src="${image}" alt="Crachá"></body></html>`);
 		printWindow.document.close();
 		printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
 	} finally { container.innerHTML = ''; container.style.cssText = ''; }
