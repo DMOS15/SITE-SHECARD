@@ -15,7 +15,17 @@ document.addEventListener('DOMContentLoaded', () => {
     selectAll.textContent = allVisibleSelected ? 'Desmarcar todos' : 'Selecionar todos';
     generate.disabled = ids.length === 0;
     deleteSelected.disabled = ids.length === 0;
-    generate.onclick = () => { const cards = ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean).map((badge) => createBadgeElement(badge)); generateBadgePDF(cards, document.getElementById('pdf-export-container')); };
+    generate.onclick = async () => {
+      generate.disabled = true;
+      try {
+        const cards = ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean).map((badge) => {
+          const settings = badge.layoutTemplate ? layoutToSettings({ template: badge.layoutTemplate }) : getBadgeSettings();
+          return createBadgeElement(badge, settings);
+        });
+        await generateBadgePDF(cards, document.getElementById('pdf-export-container'));
+      } catch (error) { alert(`Não foi possível gerar o PDF: ${error.message}`); }
+      finally { generate.disabled = false; }
+    };
   }
   async function removeBadges(ids) {
     if (!ids.length || !confirm(`Excluir ${ids.length} crachá(s) selecionado(s)?`)) return;
