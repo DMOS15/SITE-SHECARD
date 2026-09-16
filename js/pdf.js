@@ -18,14 +18,33 @@ function logCaptureGeometry(card) {
 }
 
 function waitForImages(root, timeout = 3000) {
-	return Promise.all([...root.querySelectorAll('img')].map((image) => new Promise((resolve) => {
-		if (image.complete) { resolve(); return; }
+	return Promise.all([...root.querySelectorAll('img')].map((image) => new Promise((resolve, reject) => {
+		if (image.complete && image.naturalWidth > 0) { resolve(); return; }
 		let settled = false;
-		const finish = () => { if (settled) return; settled = true; image.removeEventListener('load', finish); image.removeEventListener('error', finish); resolve(); };
-		image.addEventListener('load', finish, { once: true });
-		image.addEventListener('error', finish, { once: true });
-		setTimeout(finish, timeout);
+		const finish = (error = null) => { if (settled) return; settled = true; image.removeEventListener('load', onLoad); image.removeEventListener('error', onError); clearTimeout(timer); error ? reject(error) : resolve(); };
+		const onLoad = () => image.naturalWidth > 0 ? finish() : finish(new Error('Imagem carregada sem dimensões.'));
+		const onError = () => finish(new Error(`Imagem não carregada: ${image.alt || image.src}`));
+		image.addEventListener('load', onLoad, { once: true });
+		image.addEventListener('error', onError, { once: true });
+		const timer = setTimeout(() => finish(new Error(`Tempo limite da imagem: ${image.alt || image.src}`)), timeout);
 	})));
+}
+
+function waitForQr(root, timeout = 5000) {
+	const qr = root.querySelector('.badge-qr');
+	if (!qr) throw new Error('QR Code não encontrado no DOM.');
+	return new Promise((resolve, reject) => {
+		const isReady = () => {
+			const image = qr.querySelector('img');
+			const canvas = qr.querySelector('canvas');
+			const svg = qr.querySelector('svg');
+			return image && image.complete && image.naturalWidth > 0 || canvas && canvas.width > 0 && canvas.height > 0 || svg && svg.getBoundingClientRect().width > 0 && svg.getBoundingClientRect().height > 0;
+		};
+		if (isReady()) { resolve(); return; }
+		const started = Date.now();
+		const check = () => { if (isReady()) { resolve(); return; } if (Date.now() - started >= timeout) { reject(new Error('QR Code não terminou de renderizar.')); return; } requestAnimationFrame(check); };
+		check();
+	});
 }
 
 async function captureRenderedCard(card, container) {
@@ -35,6 +54,7 @@ async function captureRenderedCard(card, container) {
 	try {
 		logCaptureGeometry(exportCard);
 		await Promise.race([document.fonts?.ready || Promise.resolve(), new Promise((resolve) => setTimeout(resolve, 3000))]);
+		await waitForQr(exportCard);
 		await waitForImages(exportCard);
 		await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); setTimeout(resolve, 250); });
 		const canvas = await Promise.race([
