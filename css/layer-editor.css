@@ -1,11 +1,11 @@
 .badge-card.layered-badge{position:relative!important;display:block!important;width:340px!important;height:480px!important;padding:0!important;overflow:hidden!important;box-sizing:border-box!important}
 .layered-badge .badge-content{position:absolute!important;inset:0!important;display:block!important;width:100%!important;height:100%!important;padding:0!important;overflow:hidden!important}
-.layered-badge [data-layout-element]{position:absolute!important;box-sizing:border-box!important;margin:0!important;transform:translateX(-50%)!important}
+.layered-badge [data-layout-element]{position:absolute!important;box-sizing:border-box!important;margin:0!important}
 .layered-badge .badge-company,.layered-badge .badge-person{width:284px!important;min-height:0!important;text-align:center!important;line-height:1.08!important;white-space:normal!important}
 .layered-badge .badge-photo{display:flex!important;align-items:center!important;justify-content:center!important;overflow:hidden!important;padding:0!important}
 .layered-badge .badge-photo img{display:block!important;width:100%!important;height:100%!important;max-width:none!important;max-height:none!important;object-fit:cover!important;object-position:center center!important}
 .layered-badge .badge-photo-placeholder{color:var(--badge-primary,#66783e)!important;font:700 12px/1 'Space Grotesk',sans-serif!important;letter-spacing:.08em;text-align:center!important}
 .layered-badge .badge-qr{display:flex!important;align-items:center!important;justify-content:center!important;padding:10px!important;margin:0!important}
 .layered-badge .badge-qr img{display:block!important;object-fit:contain!important}
-.layered-badge .badge-logo{position:absolute!important;box-sizing:border-box!important;transform:translateX(-50%)!important;margin:0!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
+.layered-badge .badge-logo{position:absolute!important;box-sizing:border-box!important;margin:0!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
 .layered-badge .badge-aso{display:block!important;white-space:nowrap!important;line-height:1.1!important}

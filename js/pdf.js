@@ -1,30 +1,41 @@
 function getPdfContainer(target) {
-	if (target) return target;
-	const container = document.getElementById('pdf-export-container') || document.createElement('div');
-	container.id = 'pdf-export-container';
+	const container = target || document.getElementById('pdf-export-container') || document.createElement('div');
+	container.id = container.id || 'pdf-export-container';
 	if (!container.parentNode) document.body.appendChild(container);
-	return container;
+	let exportCard = container.querySelector('#export-card');
+	if (!exportCard) { exportCard = document.createElement('div'); exportCard.id = 'export-card'; container.appendChild(exportCard); }
+	return exportCard;
 }
 
 function preparePdfContainer(container) {
 	container.innerHTML = '';
-	Object.assign(container.style, { position: 'fixed', left: '0px', top: '0px', margin: '0', padding: '0', overflow: 'visible', display: 'block', visibility: 'visible', pointerEvents: 'none', zIndex: '2147483647', background: 'transparent' });
+	Object.assign(container.style, { position: 'fixed', left: '0px', top: '0px', width: '340px', height: '480px', margin: '0', padding: '0', overflow: 'visible', display: 'block', visibility: 'visible', pointerEvents: 'none', zIndex: '2147483647', background: 'transparent' });
+}
+
+function saveDebugCanvas(canvas) {
+	const link = document.createElement('a');
+	link.download = 'debug-canvas.png';
+	link.href = canvas.toDataURL('image/png');
+	link.click();
+}
+
+function logCaptureGeometry(card) {
+	const describe = (element) => element ? { rect: element.getBoundingClientRect().toJSON(), offsetWidth: element.offsetWidth, offsetHeight: element.offsetHeight, overflow: getComputedStyle(element).overflow, objectFit: getComputedStyle(element).objectFit } : null;
+	console.log('Capture geometry', { card: describe(card), photo: describe(card.querySelector('.badge-photo')), photoImage: describe(card.querySelector('.badge-photo img')), qr: describe(card.querySelector('.badge-qr')), qrImage: describe(card.querySelector('.badge-qr img')) });
 }
 
 async function captureRenderedCard(card, container) {
 	preparePdfContainer(container);
-	const wasDisconnected = !card.isConnected;
-	if (wasDisconnected) container.appendChild(card);
-	const sourceRect = card.getBoundingClientRect();
-	console.log('BoundingRect', sourceRect);
-	console.log('Card rect', card.getBoundingClientRect());
-	console.log('Card offset', { offsetLeft: card.offsetLeft, offsetTop: card.offsetTop, offsetWidth: card.offsetWidth, offsetHeight: card.offsetHeight });
-	console.log('PDF source', card);
+	const exportCard = card.cloneNode(true);
+	container.appendChild(exportCard);
+	logCaptureGeometry(exportCard);
 	await document.fonts?.ready;
+	await Promise.all([...exportCard.querySelectorAll('img')].map((image) => image.complete ? Promise.resolve() : new Promise((resolve) => { image.onload = resolve; image.onerror = resolve; })));
 	await new Promise((resolve) => setTimeout(resolve, 100));
-	const canvas = await html2canvas(card, { scale: 1, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
+	const canvas = await html2canvas(exportCard, { scale: 1, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
 	console.log('PDF canvas', { width: canvas.width, height: canvas.height });
-	if (wasDisconnected) card.remove();
+	saveDebugCanvas(canvas);
+	exportCard.remove();
 	return canvas;
 }
 
