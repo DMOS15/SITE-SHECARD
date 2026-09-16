@@ -9,7 +9,3 @@
 .layered-badge .badge-qr img{display:block!important;object-fit:contain!important}
 .layered-badge .badge-logo{position:absolute!important;box-sizing:border-box!important;transform:translateX(-50%)!important;margin:0!important;max-width:none!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
 .layered-badge .badge-aso{display:block!important;white-space:nowrap!important;line-height:1.1!important}
-@media print{
-  body.print-mode .layered-badge{width:105mm!important;height:148mm!important}
-  body.print-mode .layered-badge .badge-content{width:105mm!important;height:148mm!important}
-}

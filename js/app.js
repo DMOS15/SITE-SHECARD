@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bulkCount = document.getElementById('bulk-count');
   let current = null;
 
-  function formatAsoDate(value) { if (!value) return ''; const [year, month, day] = value.split('-').map(Number); const date = new Date(year, month - 1, day); return year && month && day && !Number.isNaN(date.getTime()) ? date : value; }
+  function formatAsoDate(value) { return value || ''; }
   function readFile(file) { return file ? new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => { const image = new Image(); image.onload = () => { const scale = Math.min(1, 360 / Math.max(image.width, image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(image.width * scale)); canvas.height = Math.max(1, Math.round(image.height * scale)); canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', 0.78)); }; image.onerror = reject; image.src = reader.result; }; reader.onerror = reject; reader.readAsDataURL(file); }) : Promise.resolve(''); }
   function updateActiveLayout() { const active = getActiveLayoutRecord(); document.getElementById('active-layout').textContent = `Layout ativo: ${active?.nome || 'Layout padrão'}`; }
   function historyFields(extra = {}) { const active = getActiveLayoutRecord(); return { layoutId: active?.id || '', layoutName: active?.nome || 'Layout padrão', layoutTemplate: JSON.stringify(getBadgeSettings()), ...extra }; }
