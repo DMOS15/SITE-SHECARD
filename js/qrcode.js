@@ -8,20 +8,25 @@ const BADGE_DEFAULTS = {
 };
 function getBadgeSettings() { const saved = window.SHECARD_ACTIVE_LAYOUT || {}; return { ...BADGE_DEFAULTS, ...saved, positions: { ...BADGE_DEFAULTS.positions, ...(saved.positions || {}) }, zIndexes: { ...BADGE_DEFAULTS.zIndexes, ...(saved.zIndexes || {}) } }; }
 function renderQr(container, url, size) {
-  if (!container || !window.QRCode) return;
+  const qrUrl = url || '';
+  if (!container || !window.QRCode || !qrUrl) return;
   const render = () => {
     container.replaceChildren();
-    new QRCode(container, { text: url, width: size, height: size, colorDark: '#17221c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+    new QRCode(container, { text: qrUrl, width: size, height: size, colorDark: '#17221c', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
     const canvas = container.querySelector('canvas');
     const image = container.querySelector('img');
     if (canvas) { canvas.width = size; canvas.height = size; canvas.style.setProperty('display', 'none', 'important'); canvas.style.width = `${size}px`; canvas.style.height = `${size}px`; }
     if (image) { image.style.setProperty('display', 'block', 'important'); image.width = size; image.height = size; image.alt = 'QR Code'; }
-    console.log('QR URL:', url);
-    console.log('QR Element:', container);
+    console.log('QR URL:', qrUrl);
+    console.log('QR Container:', container);
+    console.log('QR Element:', container.querySelector('img, canvas, svg'));
+    console.log('QR Width:', container.querySelector('img, canvas, svg')?.offsetWidth);
+    console.log('QR Height:', container.querySelector('img, canvas, svg')?.offsetHeight);
     console.log('QR Renderizado:', container.innerHTML);
   };
-  if (container.isConnected) render();
-  else requestAnimationFrame(() => { if (container.isConnected) render(); });
+  let attempts = 0;
+  const renderWhenConnected = () => { if (container.isConnected) render(); else if (attempts++ < 60) requestAnimationFrame(renderWhenConnected); };
+  renderWhenConnected();
 }
 function formatValidityDate(value) { if (!value) return ''; const text = String(value).trim(); if (/^\d{4}-\d{2}-\d{2}(?:T|$)/.test(text)) { const [year, month, day] = text.slice(0, 10).split('-'); return `${day}/${month}/${year}`; } if (/^\d{2}\/\d{2}\/\d{4}$/.test(text)) return text; const date = value instanceof Date || /^(?:\w{3} )?\w{3} \d{1,2} \d{4}/.test(text) ? new Date(value) : null; return date && !Number.isNaN(date.getTime()) ? `${String(date.getDate()).padStart(2, '0')}/${String(date.getMonth() + 1).padStart(2, '0')}/${date.getFullYear()}` : text; }
 function applyLayerStyle(element, key, settings) { const position = settings.positions[key] || BADGE_DEFAULTS.positions[key]; const parent = element.offsetParent || element.parentElement; const parentWidth = parent?.clientWidth || 340; const parentHeight = parent?.clientHeight || 480; const fallbackWidth = key === 'photo' ? Number(settings.photoSize) || 92 : key === 'qr' ? Math.max(100, Math.min(300, Number(settings.qrSize) || 220)) + 20 : key === 'logo' ? Number(settings.logoWidth) || 105 : 284; const centerOffset = (element.offsetWidth || fallbackWidth) / 2; const left = (Number(position.x) || 0) / 100 * parentWidth - centerOffset; const top = Math.max(0, Number(position.y) || 0) / 480 * parentHeight; element.style.setProperty('left', `${left}px`, 'important'); element.style.setProperty('top', `${top}px`, 'important'); element.style.setProperty('z-index', `${Number(settings.zIndexes[key]) || 1}`, 'important'); }
