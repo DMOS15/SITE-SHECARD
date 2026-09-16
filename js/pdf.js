@@ -17,18 +17,33 @@ function logCaptureGeometry(card) {
 	console.log('Capture geometry', { card: describe(card), photo: describe(card.querySelector('.badge-photo')), photoImage: describe(card.querySelector('.badge-photo img')), qr: describe(card.querySelector('.badge-qr')), qrImage: describe(card.querySelector('.badge-qr img')) });
 }
 
+function waitForImages(root, timeout = 3000) {
+	return Promise.all([...root.querySelectorAll('img')].map((image) => new Promise((resolve) => {
+		if (image.complete) { resolve(); return; }
+		let settled = false;
+		const finish = () => { if (settled) return; settled = true; image.removeEventListener('load', finish); image.removeEventListener('error', finish); resolve(); };
+		image.addEventListener('load', finish, { once: true });
+		image.addEventListener('error', finish, { once: true });
+		setTimeout(finish, timeout);
+	})));
+}
+
 async function captureRenderedCard(card, container) {
 	preparePdfContainer(container);
 	const exportCard = card.cloneNode(true);
 	container.appendChild(exportCard);
-	logCaptureGeometry(exportCard);
-	await document.fonts?.ready;
-	await Promise.all([...exportCard.querySelectorAll('img')].map((image) => image.complete && image.naturalWidth > 0 ? Promise.resolve() : new Promise((resolve) => { image.onload = resolve; image.onerror = resolve; })));
-	await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
-	const canvas = await html2canvas(exportCard, { scale: 4, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 0 });
-	console.log('PDF canvas', { width: canvas.width, height: canvas.height });
-	exportCard.remove();
-	return canvas;
+	try {
+		logCaptureGeometry(exportCard);
+		await Promise.race([document.fonts?.ready || Promise.resolve(), new Promise((resolve) => setTimeout(resolve, 3000))]);
+		await waitForImages(exportCard);
+		await new Promise((resolve) => { requestAnimationFrame(() => requestAnimationFrame(resolve)); setTimeout(resolve, 250); });
+		const canvas = await Promise.race([
+			html2canvas(exportCard, { scale: 4, backgroundColor: null, x: 0, y: 0, scrollX: 0, scrollY: 0, useCORS: true, logging: false, imageTimeout: 3000 }),
+			new Promise((resolve, reject) => setTimeout(() => reject(new Error('Tempo limite da captura excedido.')), 30000))
+		]);
+		console.log('PDF canvas', { width: canvas.width, height: canvas.height });
+		return canvas;
+	} finally { exportCard.remove(); }
 }
 
 async function generateBadgePDF(cards, target = null) {
@@ -37,17 +52,22 @@ async function generateBadgePDF(cards, target = null) {
 	const container = getPdfContainer(target);
 	const { jsPDF } = window.jspdf;
 	let pdf = null;
+	let processed = 0;
 	try {
 		for (let index = 0; index < cards.length; index += 1) {
-			const canvas = await captureRenderedCard(cards[index], container);
-			if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
-			else pdf.addPage([canvas.width, canvas.height], 'portrait');
-			const image = canvas.toDataURL('image/png');
-			console.log('Canvas size', canvas.width, canvas.height);
-			console.log('PDF position', { pdfX: 0, pdfY: 0, cardWidth: canvas.width, cardHeight: canvas.height });
-			pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height);
+			try {
+				const canvas = await captureRenderedCard(cards[index], container);
+				if (!pdf) pdf = new jsPDF({ orientation: 'portrait', unit: 'px', format: [canvas.width, canvas.height] });
+				else pdf.addPage([canvas.width, canvas.height], 'portrait');
+				const image = canvas.toDataURL('image/png');
+				console.log('Canvas size', canvas.width, canvas.height);
+				console.log('PDF position', { pdfX: 0, pdfY: 0, cardWidth: canvas.width, cardHeight: canvas.height });
+				pdf.addImage(image, 'PNG', 0, 0, canvas.width, canvas.height);
+				processed += 1;
+			} catch (error) { console.error('Erro ao processar crachá:', cards[index].dataset.badgeId, error); }
 		}
-		if (pdf) pdf.save('Crachas.pdf');
+		if (pdf && processed) pdf.save('Crachas.pdf');
+		else throw new Error('Nenhum crachá pôde ser capturado.');
 	} finally { container.innerHTML = ''; container.style.cssText = ''; }
 }
 

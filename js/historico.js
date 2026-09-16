@@ -18,12 +18,19 @@ document.addEventListener('DOMContentLoaded', () => {
     generate.onclick = async () => {
       generate.disabled = true;
       try {
-        const cards = ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean).map((badge) => {
+        const selectedBadges = ids.map((id) => getBadges().find((badge) => badge.id === id)).filter(Boolean);
+        console.log('Iniciando geração em lote');
+        console.log('Quantidade selecionada:', selectedBadges.length);
+        const cards = selectedBadges.map((badge) => {
+          console.log('Processando crachá:', badge.id);
+          console.log('Layout:', badge.layoutName || badge.layout || 'Layout padrão');
+          console.log('Foto:', badge.photoData || badge.photo || 'Sem foto');
+          console.log('QR:', badge.url || badge.qrUrl || 'Sem QR');
           const settings = badge.layoutTemplate ? layoutToSettings({ template: badge.layoutTemplate }) : getBadgeSettings();
           return createBadgeElement(badge, settings);
         });
         await generateBadgePDF(cards, document.getElementById('pdf-export-container'));
-      } catch (error) { alert(`Não foi possível gerar o PDF: ${error.message}`); }
+      } catch (error) { console.error('Erro ao gerar PDF em lote:', error); alert('Erro ao gerar PDF. Verifique o console.'); }
       finally { generate.disabled = false; }
     };
   }
