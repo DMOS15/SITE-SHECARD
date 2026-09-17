@@ -10,8 +10,50 @@ document.addEventListener('DOMContentLoaded', () => {
   const rowsBody = document.getElementById('bulk-rows');
   const bulkCount = document.getElementById('bulk-count');
   let current = null;
+  const combobox = document.getElementById('file-name-combobox');
+  const options = document.getElementById('file-name-options');
+  const toggle = document.getElementById('file-name-toggle');
+  const asoField = document.getElementById('aso-field');
+  const asoInput = document.getElementById('aso-valid-until');
+  const photoField = document.getElementById('photo-field');
+  const photoInput = document.getElementById('photo-upload');
+  let highlightedIndex = -1;
+  let isComboboxOpen = false;
+  function matchingCollaborators(value = '') { const query = value.trim().toLocaleLowerCase(); return getBadges().filter((record) => `${record.name} ${record.fileName}`.toLocaleLowerCase().includes(query)); }
+  function closeCollaboratorOptions() { isComboboxOpen = false; fileInput.setAttribute('aria-expanded', 'false'); combobox.classList.remove('is-open'); highlightedIndex = -1; }
+  function chooseCollaborator(record) { nameInput.value = record.name; fileInput.value = record.fileName; closeCollaboratorOptions(); updateUrl(); }
+  function renderCollaborators(value = fileInput.value) {
+    const records = matchingCollaborators(value);
+    options.replaceChildren(...records.map((record, index) => {
+      const option = document.createElement('button'); option.type = 'button'; option.className = 'combobox-option'; option.setAttribute('role', 'option'); option.innerHTML = '<strong></strong><small></small>';
+      option.querySelector('strong').textContent = record.fileName; option.querySelector('small').textContent = record.name;
+      option.addEventListener('mousedown', (event) => { event.preventDefault(); chooseCollaborator(record); });
+      option.dataset.index = index; return option;
+    }));
+    highlightedIndex = records.length ? 0 : -1;
+    options.querySelectorAll('.combobox-option').forEach((option, index) => option.classList.toggle('is-highlighted', index === highlightedIndex));
+    return records;
+  }
+  function openCollaboratorOptions() { isComboboxOpen = true; fileInput.setAttribute('aria-expanded', 'true'); combobox.classList.add('is-open'); renderCollaborators(fileInput.value); }
+  function moveHighlight(step) { const items = options.querySelectorAll('.combobox-option'); if (!items.length) return; highlightedIndex = (highlightedIndex + step + items.length) % items.length; items.forEach((item, index) => item.classList.toggle('is-highlighted', index === highlightedIndex)); items[highlightedIndex].scrollIntoView({ block: 'nearest' }); }
+  fileInput.addEventListener('focus', openCollaboratorOptions);
+  fileInput.addEventListener('input', () => { openCollaboratorOptions(); updateUrl(); });
+  fileInput.addEventListener('keydown', (event) => { if (event.key === 'ArrowDown') { event.preventDefault(); if (!isComboboxOpen) openCollaboratorOptions(); else moveHighlight(1); } else if (event.key === 'ArrowUp') { event.preventDefault(); moveHighlight(-1); } else if (event.key === 'Enter' && isComboboxOpen) { const records = matchingCollaborators(fileInput.value); if (records[highlightedIndex]) { event.preventDefault(); chooseCollaborator(records[highlightedIndex]); } } else if (event.key === 'Escape') closeCollaboratorOptions(); });
+  toggle.addEventListener('click', () => { if (isComboboxOpen) closeCollaboratorOptions(); else { fileInput.focus(); openCollaboratorOptions(); } });
+  document.addEventListener('click', (event) => { if (!combobox.contains(event.target)) closeCollaboratorOptions(); });
 
   function formatAsoDate(value) { return value || ''; }
+  function updateFormForLayout() {
+    const settings = getBadgeSettings();
+    const showPhoto = settings.showPhoto === true;
+    const showAso = settings.showAso === true;
+    asoField.classList.toggle('is-layout-disabled', !showAso);
+    photoField.classList.toggle('is-layout-disabled', !showPhoto);
+    asoInput.required = showAso;
+    photoInput.required = showPhoto;
+    if (!showAso) asoInput.value = '';
+    if (!showPhoto) photoInput.value = '';
+  }
   function readFile(file) { return file ? new Promise((resolve, reject) => { const reader = new FileReader(); reader.onload = () => { const image = new Image(); image.onload = () => { const scale = Math.min(1, 360 / Math.max(image.width, image.height)); const canvas = document.createElement('canvas'); canvas.width = Math.max(1, Math.round(image.width * scale)); canvas.height = Math.max(1, Math.round(image.height * scale)); canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height); resolve(canvas.toDataURL('image/jpeg', 0.78)); }; image.onerror = reject; image.src = reader.result; }; reader.onerror = reject; reader.readAsDataURL(file); }) : Promise.resolve(''); }
   function updateActiveLayout() { const active = getActiveLayoutRecord(); document.getElementById('active-layout').textContent = `Layout ativo: ${active?.nome || 'Layout padrão'}`; }
   function historyFields(extra = {}) { const active = getActiveLayoutRecord(); return { layoutId: active?.id || '', layoutName: active?.nome || 'Layout padrão', layoutTemplate: JSON.stringify(getBadgeSettings()), ...extra }; }
@@ -60,12 +102,13 @@ document.addEventListener('DOMContentLoaded', () => {
     try { await saveBadges(badges); dialog.close(); rowsBody.innerHTML = ''; renderRecent(); alert(`✓ ${count} colaborador(es) importado(s)\n⚠ ${invalid} linha(s) inválida(s) ignorada(s)${skipped ? `\n↷ ${skipped} duplicado(s) mantido(s)` : ''}`); } catch (error) { alert(error.message); }
   }
 
-  fileInput.addEventListener('input', updateUrl); updateUrl();
-  form.addEventListener('submit', async (event) => { event.preventDefault(); const name = nameInput.value.trim(); const fileName = fileInput.value.trim(); if (!name || !fileName) return; const existing = findBadge(fileName); if (existing && !window.confirm('Este crachá já existe. Deseja substituir?')) return; const photoData = await readFile(document.getElementById('photo-upload').files[0]); const badge = { id: existing ? existing.id : crypto.randomUUID(), name, company: getBadgeSettings().companyName, fileName, url: badgeUrl(fileName), createdAt: existing ? existing.createdAt : new Date().toISOString(), ...historyFields({ photoData, asoValidUntil: formatAsoDate(document.getElementById('aso-valid-until').value) }) }; try { await saveBadges([badge, ...getBadges().filter((item) => item.fileName.toLowerCase() !== fileName.toLowerCase())]); form.reset(); updateUrl(); showBadge(badge); renderRecent(); } catch (error) { alert(error.message); } });
+  nameInput.addEventListener('change', () => { const match = getBadges().find((record) => record.name.toLocaleLowerCase() === nameInput.value.trim().toLocaleLowerCase()); if (match) chooseCollaborator(match); }); updateUrl(); updateFormForLayout();
+  form.addEventListener('submit', async (event) => { event.preventDefault(); updateFormForLayout(); if (!form.reportValidity()) return; const name = nameInput.value.trim(); const fileName = fileInput.value.trim(); if (!name || !fileName) return; const existing = findBadge(fileName); if (existing && !window.confirm('Este crachá já existe. Deseja substituir?')) return; const photoData = await readFile(photoInput.files[0]); const badge = { id: existing ? existing.id : crypto.randomUUID(), name, company: getBadgeSettings().companyName, fileName, url: badgeUrl(fileName), createdAt: existing ? existing.createdAt : new Date().toISOString(), ...historyFields({ photoData, asoValidUntil: formatAsoDate(asoInput.value) }) }; try { await saveBadges([badge, ...getBadges().filter((item) => item.fileName.toLowerCase() !== fileName.toLowerCase())]); form.reset(); updateFormForLayout(); updateUrl(); showBadge(badge); renderRecent(); } catch (error) { alert(error.message); } });
   document.getElementById('print-button').addEventListener('click', () => { const card = previewArea.querySelector('.badge-card'); if (current && card) printBadge(card, document.getElementById('pdf-export-container')); });
   document.getElementById('single-pdf').addEventListener('click', () => { const card = previewArea.querySelector('.badge-card'); if (current && card) generateBadgePDF([card], document.getElementById('pdf-export-container')); });
   document.getElementById('open-bulk').addEventListener('click', openBulk); document.getElementById('close-bulk').addEventListener('click', () => dialog.close()); document.getElementById('cancel-bulk').addEventListener('click', () => dialog.close()); document.getElementById('clear-bulk').addEventListener('click', () => { rowsBody.innerHTML = ''; addBulkRow(); }); document.getElementById('process-bulk').addEventListener('click', importBulk);
   function renderRecent() { const list = document.getElementById('recent-list'); const badges = getBadges().slice(0, 3); list.innerHTML = badges.length ? badges.map((badge) => `<a class="recent-item" href="index.html?badge=${encodeURIComponent(badge.id)}"><span class="recent-avatar">${badge.name[0]}</span><span><strong>${badge.name}</strong><small>${badge.fileName} · ${new Date(badge.createdAt).toLocaleDateString('pt-BR')}</small></span></a>`).join('') : '<div class="empty-history"><strong>Nenhum crachá gerado ainda.</strong><span>Adicione o primeiro colaborador acima.</span></div>'; }
-  window.addEventListener('shecard:data-updated', () => { updateActiveLayout(); renderRecent(); });
-  Promise.all([loadBadges(), loadLayouts()]).then(() => { const params = new URLSearchParams(location.search); const requestedLayout = params.get('layout'); const requested = params.get('badge'); if (requestedLayout) { const layout = getLayouts().find((item) => item.id === requestedLayout); if (layout) activateLayout(layout); } if (requested) { const found = getBadges().find((badge) => badge.id === requested); if (found) { activateBadgeLayout(found); showBadge(found); } } updateActiveLayout(); renderRecent(); }).catch((error) => { alert(error.message); });
+  window.addEventListener('shecard:layout-changed', () => { updateActiveLayout(); updateFormForLayout(); });
+  window.addEventListener('shecard:data-updated', () => { updateActiveLayout(); updateFormForLayout(); renderRecent(); renderCollaborators(); });
+  Promise.all([loadBadges(), loadLayouts()]).then(() => { const params = new URLSearchParams(location.search); const requestedLayout = params.get('layout'); const requested = params.get('badge'); if (requestedLayout) { const layout = getLayouts().find((item) => item.id === requestedLayout); if (layout) activateLayout(layout); } if (requested) { const found = getBadges().find((badge) => badge.id === requested); if (found) { activateBadgeLayout(found); showBadge(found); } } updateActiveLayout(); updateFormForLayout(); renderRecent(); renderCollaborators(); }).catch((error) => { alert(error.message); });
 });

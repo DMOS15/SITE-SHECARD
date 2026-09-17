@@ -18,6 +18,7 @@
   <script defer src="js/qrcode.js?v=6"></script>
   <script defer src="js/pdf.js"></script>
   <script defer src="js/historico.js"></script>
+<style>.selected-panel{position:sticky;top:12px;z-index:4;margin:14px 0;padding:16px 18px;border:1px solid #d4dfc4;border-radius:10px;background:#f0f5e7;color:#48572d}.selected-panel.hidden{display:none}.selected-panel strong{display:block}.selected-person{display:inline-block;margin:10px 12px 0 0;font-weight:600}.selected-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}</style>
 </head>
 <body data-page="history">
   <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">S</span><span>SHE<span class="brand-accent">CARD</span></span></a><nav><a href="index.html">Gerar crachá</a><a class="active" href="historico.html">Histórico</a><a href="configuracoes.html">Configurações</a></nav><span class="status-dot">Sistema local</span></header>
@@ -25,6 +26,8 @@
     <section class="intro"><div><p class="eyebrow">Biblioteca local</p><h1>Histórico de crachás.</h1><p class="intro-copy">Registros preservados neste navegador para consulta e reimpressão.</p></div><a href="index.html" class="button button-dark">＋ Novo crachá</a></section>
     <section class="history-panel">
       <div class="history-toolbar"><div class="search-wrap"><span>🔍</span><input id="history-search" placeholder="Pesquisar por nome, empresa ou NOME_ARQUIVO"></div><button id="refresh-history" class="button button-light" type="button">Atualizar histórico</button><button id="select-all" class="button button-light" type="button">Selecionar todos</button><span id="selection-count" class="selection-count">0 selecionados</span><button id="delete-selected" class="button button-danger" type="button" disabled>Excluir selecionados</button><button id="export-history" class="button button-light" type="button">Exportar histórico</button><button id="generate-pdf" class="button button-dark" disabled>Gerar PDF</button></div>
+      <div id="history-sync-status" class="settings-note" aria-live="polite">Cache local pronto</div>
+      <aside id="selected-panel" class="selected-panel hidden"><strong>Selecionados (<span id="selected-total">0</span>)</strong><div id="selected-list"></div><div class="selected-actions"><button id="selected-generate-pdf" class="button button-dark" type="button">Gerar PDF</button><button id="selected-print" class="button button-light" type="button">Imprimir</button><button id="clear-selection" class="button button-light" type="button">Limpar seleção</button></div></aside>
       <div id="history-list"></div>
       <div class="history-toolbar"><button id="history-previous" class="button button-light" type="button">Anterior</button><span id="history-page">Página 1 de 1</span><button id="history-next" class="button button-light" type="button">Próxima</button></div>
       <div id="history-empty" class="empty-history hidden"><div class="empty-icon">🔍</div><strong>Nenhum crachá encontrado</strong><span>Gere um novo crachá ou ajuste sua pesquisa.</span></div>

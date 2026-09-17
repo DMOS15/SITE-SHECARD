@@ -2,7 +2,7 @@ const BADGE_DEFAULTS = {
   companyName: "JDE PEET'S", showCompany: true, showName: true, showLogo: false, showFileName: false, showPhoto: false, showAso: false,
   primaryColor: '#66783e', secondaryColor: '#dfe8cf', backgroundColor: '#ffffff', textColor: '#17221c',
   alignment: 'center', borderWidth: 1, borderColor: '#dfe4d7', radius: 16, spacing: 0,
-  companySize: 22, nameSize: 22, qrSize: 220, layoutPreset: 'corporate', photoSize: 92, asoSize: 16,
+  companySize: 22, nameSize: 22, qrSize: 220, layoutPreset: 'corporate', photoSize: 92, asoSize: 16, logoWidth: 105, logoHeight: 32, logoOpacity: 100,
   positions: { company: { x: 50, y: 34 }, photo: { x: 50, y: 88 }, qr: { x: 50, y: 192 }, name: { x: 50, y: 388 }, aso: { x: 50, y: 430 }, logo: { x: 18, y: 438 } },
   zIndexes: { company: 1, photo: 2, qr: 3, name: 4, aso: 5, logo: 6 }
 };
@@ -46,6 +46,6 @@ function createBadgeElement(badge, overrideSettings = null) {
   if (settings.showAso && badge.asoValidUntil) { aso.textContent = `VALIDADE: ${formatValidityDate(badge.asoValidUntil)}`; aso.style.fontSize = `${settings.asoSize}px`; aso.style.color = settings.textColor; } else aso.remove();
   const size = Math.max(100, Math.min(300, Number(settings.qrSize) || 220)); qr.style.width = `${size}px`; qr.style.height = `${size}px`; qr.style.setProperty('--badge-qr-size', `${size}px`); qr.dataset.qrUrl = badge.url || ''; qr.dataset.qrSize = `${size}`; renderQr(qr, badge.url, size);
   Object.entries(elements).forEach(([key, element]) => { if (element.parentNode) applyLayerStyle(element, key, settings); });
-  if (settings.showLogo) { const logo = document.createElement('img'); logo.className = 'badge-logo'; logo.src = settings.logoData || 'assets/logo.png'; logo.alt = 'Logo'; logo.style.setProperty('width', `${settings.logoWidth || 105}px`, 'important'); logo.style.setProperty('height', `${settings.logoHeight || 32}px`, 'important'); applyLayerStyle(logo, 'logo', settings); card.appendChild(logo); }
+  if (settings.showLogo) { const logo = document.createElement('img'); logo.className = 'badge-logo'; logo.src = settings.logoData || 'assets/logo.png'; logo.alt = 'Logo'; logo.style.setProperty('width', `${settings.logoWidth || 105}px`, 'important'); logo.style.setProperty('height', `${settings.logoHeight || 32}px`, 'important'); logo.style.setProperty('opacity', `${Math.max(0, Math.min(100, Number(settings.logoOpacity ?? window.SHECARD_LOGO_OPACITY ?? 100))) / 100}`, 'important'); applyLayerStyle(logo, 'logo', settings); card.appendChild(logo); }
   if (settings.showFileName) { const file = document.createElement('small'); file.className = 'badge-file-name'; file.textContent = badge.fileName; card.appendChild(file); } return card;
 }

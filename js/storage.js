@@ -5,6 +5,7 @@ let sharedBadges = readCache(BADGES_CACHE_KEY);
 let historyLoaded = false;
 let sharedLayouts = readCache(LAYOUTS_CACHE_KEY);
 let sharedSyncPromise = null;
+let lastSharedSync = localStorage.getItem('shecard_last_sync') || '';
 
 function readCache(key) { try { const value = JSON.parse(localStorage.getItem(key) || '[]'); return Array.isArray(value) ? value : []; } catch { return []; } }
 function writeCache(key, value) { try { localStorage.setItem(key, JSON.stringify(value)); } catch (error) { console.warn(`Não foi possível atualizar o cache ${key}:`, error.message); } }
@@ -29,8 +30,10 @@ async function syncSharedData(force = false) {
 		const nextLayouts = result.layouts || [];
 		const changed = cacheChanged(sharedBadges, nextBadges) || cacheChanged(sharedLayouts, nextLayouts);
 		sharedBadges = nextBadges; sharedLayouts = nextLayouts; historyLoaded = true;
+		lastSharedSync = new Date().toISOString();
 		writeCache(BADGES_CACHE_KEY, sharedBadges);
 		writeCache(LAYOUTS_CACHE_KEY, sharedLayouts);
+		localStorage.setItem('shecard_last_sync', lastSharedSync);
 		console.log(`Histórico e layouts sincronizados em ${((performance.now() - started) / 1000).toFixed(2)}s`);
 		if (changed) publishDataUpdate();
 		return result;
@@ -46,7 +49,7 @@ function getBadges() { return sharedBadges; }
 async function saveBadges(badges) { const result = await requestSharedHistory({ action: 'upsert', records: badges }); sharedBadges = result.records || []; historyLoaded = true; writeCache(BADGES_CACHE_KEY, sharedBadges); return sharedBadges; }
 async function deleteBadges(ids) { const result = await requestSharedHistory({ action: 'delete', ids }); sharedBadges = result.records || []; historyLoaded = true; writeCache(BADGES_CACHE_KEY, sharedBadges); return sharedBadges; }
 function layoutToSettings(layout) { try { return JSON.parse(layout.template || '{}'); } catch { return {}; } }
-function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; if (layout) localStorage.setItem('shecard_active_layout_id', layout.id); else localStorage.removeItem('shecard_active_layout_id'); return window.SHECARD_ACTIVE_LAYOUT; }
+function activateLayout(layout) { window.SHECARD_ACTIVE_LAYOUT = layout ? layoutToSettings(layout) : null; window.SHECARD_ACTIVE_LAYOUT_RECORD = layout || null; if (layout) localStorage.setItem('shecard_active_layout_id', layout.id); else localStorage.removeItem('shecard_active_layout_id'); window.dispatchEvent(new CustomEvent('shecard:layout-changed', { detail: layout })); return window.SHECARD_ACTIVE_LAYOUT; }
 function activateBadgeLayout(badge) { if (!badge) return null; if (badge.layoutTemplate) return activateLayout({ id: badge.layoutId || `history-${badge.id}`, nome: badge.layoutName || 'Layout do histórico', template: badge.layoutTemplate }); const layout = sharedLayouts.find((item) => item.id === badge.layoutId || item.nome === badge.layoutName); return activateLayout(layout || null); }
 function getActiveLayoutRecord() { return window.SHECARD_ACTIVE_LAYOUT_RECORD || null; }
 async function loadLayouts() {
@@ -55,6 +58,7 @@ async function loadLayouts() {
 	const activeId = localStorage.getItem('shecard_active_layout_id'); activateLayout(sharedLayouts.find((layout) => layout.id === activeId) || sharedLayouts.find((layout) => layout.isDefault) || sharedLayouts[0] || null); return sharedLayouts;
 }
 function getLayouts() { return sharedLayouts; }
+function getLastSharedSync() { return lastSharedSync; }
 async function refreshSharedData() { const result = await syncSharedData(true); return result; }
 async function saveLayout(layout) { const result = await requestSharedHistory({ action: 'layout-upsert', layout }); sharedLayouts = result.layouts || []; writeCache(LAYOUTS_CACHE_KEY, sharedLayouts); return sharedLayouts; }
 async function removeLayout(id) { const result = await requestSharedHistory({ action: 'layout-delete', id }); sharedLayouts = result.layouts || []; writeCache(LAYOUTS_CACHE_KEY, sharedLayouts); return sharedLayouts; }
