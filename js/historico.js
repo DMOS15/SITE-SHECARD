@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     pageBadges.forEach((badge) => {
       const row = document.createElement('div');
       row.className = 'history-item';
-      row.innerHTML = `<input class="check" type="checkbox" data-id="${badge.id}" ${selected.has(badge.id) ? 'checked' : ''}><div class="history-main"><strong></strong><small></small><em class="history-layout"></em></div><time class="history-date"></time><div class="history-actions"><button class="button button-light use-button">Usar</button><button class="button button-light delete-button">Excluir</button></div>`;
+      row.innerHTML = `<input class="check" type="checkbox" data-id="${badge.id}" ${selected.has(badge.id) ? 'checked' : ''}><div class="history-main"><strong></strong><small></small><em class="history-layout"></em></div><time class="history-date"></time><div class="history-actions"><button class="button button-light use-button"><i class="fa-solid fa-arrow-up-right-from-square" aria-hidden="true"></i>Usar</button><button class="button button-danger delete-button"><i class="fa-regular fa-trash-can" aria-hidden="true"></i>Excluir</button></div>`;
       row.querySelector('strong').textContent = badge.name;
       row.querySelector('small').textContent = `${badge.company || 'Empresa não informada'} · ${badge.fileName}.html`;
       row.querySelector('.history-layout').textContent = `Layout: ${badge.layoutName || 'Layout padrão'}`;

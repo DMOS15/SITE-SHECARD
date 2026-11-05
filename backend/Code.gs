@@ -56,7 +56,7 @@ function readLayouts_() {
 
 function normalizeLayout_(layout) {
   const now = new Date().toISOString();
-  return { id: String(layout.id || Utilities.getUuid()), nome: String(layout.nome || 'Novo Layout'), empresa: String(layout.empresa || ''), mostrarLogo: Boolean(layout.mostrarLogo), logoUrl: String(layout.logoUrl || ''), corPrimaria: String(layout.corPrimaria || '#66783e'), corSecundaria: String(layout.corSecundaria || '#dfe8cf'), qrSize: Number(layout.qrSize) || 220, template: String(layout.template || '{}'), criadoEm: String(layout.criadoEm || now), atualizadoEm: now, isDefault: Boolean(layout.isDefault) };
+  return { id: String(layout.id || Utilities.getUuid()), nome: String(layout.nome || 'Novo Layout'), empresa: String(layout.empresa || ''), mostrarLogo: Boolean(layout.mostrarLogo), logoUrl: String(layout.logoUrl || ''), corPrimaria: String(layout.corPrimaria || '#9A6B45'), corSecundaria: String(layout.corSecundaria || '#E8D8C6'), qrSize: Number(layout.qrSize) || 220, template: String(layout.template || '{}'), criadoEm: String(layout.criadoEm || now), atualizadoEm: now, isDefault: Boolean(layout.isDefault) };
 }
 
 function upsertLayouts_(current, incoming) {

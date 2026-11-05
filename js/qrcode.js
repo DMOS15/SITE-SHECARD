@@ -1,7 +1,7 @@
 const BADGE_DEFAULTS = {
   companyName: "JDE PEET'S", showCompany: true, showName: true, showLogo: false, showFileName: false, showPhoto: false, showAso: false,
-  primaryColor: '#66783e', secondaryColor: '#dfe8cf', backgroundColor: '#ffffff', textColor: '#17221c',
-  alignment: 'center', borderWidth: 1, borderColor: '#dfe4d7', radius: 16, spacing: 0,
+  primaryColor: '#9A6B45', secondaryColor: '#E8D8C6', backgroundColor: '#FFFDF9', textColor: '#30241D',
+  alignment: 'center', borderWidth: 1, borderColor: '#E4D9CB', radius: 16, spacing: 0,
   companySize: 22, nameSize: 22, qrSize: 220, layoutPreset: 'corporate', photoSize: 92, asoSize: 16, logoWidth: 105, logoHeight: 32, logoOpacity: 100,
   positions: { company: { x: 50, y: 34 }, photo: { x: 50, y: 88 }, qr: { x: 50, y: 192 }, name: { x: 50, y: 388 }, aso: { x: 50, y: 430 }, logo: { x: 18, y: 438 } },
   zIndexes: { company: 1, photo: 2, qr: 3, name: 4, aso: 5, logo: 6 }

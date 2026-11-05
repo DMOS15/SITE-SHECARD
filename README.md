@@ -4,7 +4,7 @@ Aplicação estática para geração de crachás corporativos. Funciona diretame
 
 ## Executar
 
-Abra `index.html` diretamente no navegador. QRCode.js, html2canvas e jsPDF são carregados por CDN, portanto é necessária conexão com a internet.
+Abra `index.html` diretamente no navegador. Inter, Font Awesome, QRCode.js, html2canvas e jsPDF são carregados por CDN, portanto é necessária conexão com a internet.
 
 ## Fluxo
 
@@ -17,8 +17,10 @@ Abra `index.html` diretamente no navegador. QRCode.js, html2canvas e jsPDF são 
 
 `index.html`, `historico.html`, `css/style.css`, `css/print.css`, `js/app.js`, `js/storage.js`, `js/qrcode.js`, `js/pdf.js`, `js/historico.js`, `assets/logo.png`.
 - QR Code com tamanho fixo.
-- Fundo verde oliva, nome branco, linha de prédios, faixa branca inclinada e logo no canto inferior esquerdo.
+- Identidade institucional em tons de marrom, bronze, dourado sutil, bege e branco.
 - Histórico persistente com `localStorage`.
+- Alternância entre temas claro e escuro, com preferência salva no navegador.
+- Resumo da quantidade de crachás, emissões do mês e última sincronização.
 - Duplicidade por NOME_ARQUIVO, com confirmação para substituir.
 - PDF único com uma página por crachá, preservando a ordem da seleção.
 - PDFs consolidados são somente baixados e nunca armazenados.
@@ -37,15 +39,21 @@ historico.html
 configuracoes.html
 css/style.css
 css/modern.css
+css/theme.css
 css/history.css
+css/config.css
+css/editor.css
 css/print.css
 css/badge-premium.css
 css/badge-settings.css
 js/app.js
+js/theme.js
 js/storage.js
 js/qrcode.js
 js/pdf.js
 js/historico.js
+js/config.js
+backend/Code.gs
 assets/logo.png
 ```
 

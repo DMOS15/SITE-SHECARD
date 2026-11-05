@@ -107,7 +107,24 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('print-button').addEventListener('click', () => { const card = previewArea.querySelector('.badge-card'); if (current && card) printBadge(card, document.getElementById('pdf-export-container')); });
   document.getElementById('single-pdf').addEventListener('click', () => { const card = previewArea.querySelector('.badge-card'); if (current && card) generateBadgePDF([card], document.getElementById('pdf-export-container')); });
   document.getElementById('open-bulk').addEventListener('click', openBulk); document.getElementById('close-bulk').addEventListener('click', () => dialog.close()); document.getElementById('cancel-bulk').addEventListener('click', () => dialog.close()); document.getElementById('clear-bulk').addEventListener('click', () => { rowsBody.innerHTML = ''; addBulkRow(); }); document.getElementById('process-bulk').addEventListener('click', importBulk);
-  function renderRecent() { const list = document.getElementById('recent-list'); const badges = getBadges().slice(0, 3); list.innerHTML = badges.length ? badges.map((badge) => `<a class="recent-item" href="index.html?badge=${encodeURIComponent(badge.id)}"><span class="recent-avatar">${badge.name[0]}</span><span><strong>${badge.name}</strong><small>${badge.fileName} · ${new Date(badge.createdAt).toLocaleDateString('pt-BR')}</small></span></a>`).join('') : '<div class="empty-history"><strong>Nenhum crachá gerado ainda.</strong><span>Adicione o primeiro colaborador acima.</span></div>'; }
+  function renderDashboardStats() {
+    const badges = getBadges();
+    const now = new Date();
+    const monthCount = badges.filter((badge) => {
+      const createdAt = new Date(badge.createdAt);
+      return !Number.isNaN(createdAt.getTime()) && createdAt.getFullYear() === now.getFullYear() && createdAt.getMonth() === now.getMonth();
+    }).length;
+    const lastSync = getLastSharedSync();
+    document.getElementById('badge-total').textContent = badges.length.toLocaleString('pt-BR');
+    document.getElementById('badge-this-month').textContent = monthCount.toLocaleString('pt-BR');
+    document.getElementById('dashboard-last-sync').textContent = lastSync ? new Date(lastSync).toLocaleString('pt-BR') : 'Aguardando sincronização';
+  }
+  function renderRecent() {
+    renderDashboardStats();
+    const list = document.getElementById('recent-list');
+    const badges = getBadges().slice(0, 3);
+    list.innerHTML = badges.length ? badges.map((badge) => `<a class="recent-item" href="index.html?badge=${encodeURIComponent(badge.id)}"><span class="recent-avatar">${badge.name[0]}</span><span><strong>${badge.name}</strong><small>${badge.fileName} · ${new Date(badge.createdAt).toLocaleDateString('pt-BR')}</small></span></a>`).join('') : '<div class="empty-history"><strong>Nenhum crachá gerado ainda.</strong><span>Adicione o primeiro colaborador acima.</span></div>';
+  }
   window.addEventListener('shecard:layout-changed', () => { updateActiveLayout(); updateFormForLayout(); });
   window.addEventListener('shecard:data-updated', () => { updateActiveLayout(); updateFormForLayout(); renderRecent(); renderCollaborators(); });
   Promise.all([loadBadges(), loadLayouts()]).then(() => { const params = new URLSearchParams(location.search); const requestedLayout = params.get('layout'); const requested = params.get('badge'); if (requestedLayout) { const layout = getLayouts().find((item) => item.id === requestedLayout); if (layout) activateLayout(layout); } if (requested) { const found = getBadges().find((badge) => badge.id === requested); if (found) { activateBadgeLayout(found); showBadge(found); } } updateActiveLayout(); updateFormForLayout(); renderRecent(); renderCollaborators(); }).catch((error) => { alert(error.message); });

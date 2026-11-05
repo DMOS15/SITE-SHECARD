@@ -1,15 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  --primary: #556B2F;
-  --primary-hover: #465926;
-  --accent: #6B8E23;
-  --background: #F5F7F2;
-  --surface: #FFFFFF;
-  --text: #1F2937;
-  --text-secondary: #6B7280;
-  --border: #E5E7EB;
-  --danger: #DC2626;
+  --brand-cocoa: #3E2C23;
+  --brand-brown: #5A3D2E;
+  --brand-bronze: #9A6B45;
+  --brand-gold: #C49A65;
+  --brand-beige: #F5EFE6;
+  --primary: var(--brand-brown);
+  --primary-hover: #452E23;
+  --accent: var(--brand-bronze);
+  --background: #F6F1E9;
+  --surface: #FFFDF9;
+  --text: #30241D;
+  --text-secondary: #75665B;
+  --border: #E4D9CB;
+  --danger: #A9443A;
   --olive: var(--primary);
   --olive-dark: var(--primary-hover);
   --ink: var(--text);
@@ -17,8 +22,8 @@
   --cream: var(--background);
   --line: var(--border);
   --white: var(--surface);
-  --soft: #EEF2E8;
-  --focus-ring: rgba(85, 107, 47, .2);
+  --soft: #F1E8DD;
+  --focus-ring: rgba(154, 107, 69, .24);
 }
 
 * {
@@ -75,9 +80,9 @@ button {
   align-items: center;
   gap: clamp(24px, 4vw, 56px);
   padding: 0 clamp(20px, 4vw, 64px);
-  border-bottom: 1px solid rgba(229, 231, 235, .9);
-  background: rgba(255, 255, 255, .94);
-  box-shadow: 0 4px 18px rgba(31, 41, 55, .045);
+  border-bottom: 1px solid rgba(228, 217, 203, .9);
+  background: rgba(255, 253, 249, .96);
+  box-shadow: 0 4px 18px rgba(62, 44, 35, .055);
   backdrop-filter: blur(16px);
 }
 
@@ -97,9 +102,9 @@ button {
   height: 34px;
   place-items: center;
   border-radius: 10px;
-  background: var(--primary);
+  background: var(--brand-cocoa);
   color: #fff;
-  box-shadow: 0 4px 10px rgba(85, 107, 47, .2);
+  box-shadow: 0 4px 10px rgba(62, 44, 35, .2);
 }
 
 .brand-accent {
@@ -117,6 +122,7 @@ button {
   position: relative;
   display: flex;
   align-items: center;
+  gap: 8px;
   color: var(--text-secondary);
   font-size: 13px;
   font-weight: 600;
@@ -154,7 +160,7 @@ button {
   height: 7px;
   margin-right: 8px;
   border-radius: 50%;
-  background: #6B8E23;
+  background: var(--brand-gold);
   content: '';
 }
 
@@ -200,9 +206,9 @@ button {
 .quick-note {
   flex: 0 0 auto;
   padding: 13px 17px;
-  border: 1px solid #dce5d2;
+  border: 1px solid #E8D8C6;
   border-radius: 12px;
-  background: #f3f7ed;
+  background: #FBF7F0;
   color: var(--primary);
   font-size: 12px;
 }
@@ -220,6 +226,66 @@ button {
   display: block;
   margin: 5px 0 0 14px;
   color: var(--text-secondary);
+}
+
+.dashboard-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: -8px 0 24px;
+}
+
+.dashboard-stat {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 13px;
+  padding: 15px 17px;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: var(--surface);
+  box-shadow: 0 4px 14px rgba(62, 44, 35, .035);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.dashboard-stat:hover {
+  transform: translateY(-2px);
+  border-color: #D3B99D;
+  box-shadow: 0 8px 20px rgba(62, 44, 35, .075);
+}
+
+.stat-icon {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 12px;
+  background: var(--soft);
+  color: var(--brand-bronze);
+}
+
+.dashboard-stat small,
+.dashboard-stat strong {
+  display: block;
+}
+
+.dashboard-stat small {
+  color: var(--text-secondary);
+  font-size: 11px;
+}
+
+.dashboard-stat strong {
+  margin-top: 3px;
+  color: var(--text);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -.025em;
+}
+
+.dashboard-stat:last-child strong {
+  font-size: 12px;
+  letter-spacing: 0;
 }
 
 .workspace {
@@ -334,7 +400,7 @@ button {
   margin-bottom: 20px;
   padding: 13px;
   border-radius: 9px;
-  background: #f3f6ef;
+  background: #F8F3EC;
   color: var(--text-secondary);
 }
 
@@ -382,7 +448,7 @@ button {
 
 .button-dark:hover:not(:disabled) {
   background: var(--primary-hover);
-  box-shadow: 0 4px 12px rgba(70, 89, 38, .2);
+  box-shadow: 0 4px 12px rgba(69, 46, 35, .22);
 }
 
 .button-light {
@@ -392,8 +458,8 @@ button {
 }
 
 .button-light:hover:not(:disabled) {
-  border-color: #b6c4a4;
-  background: #f8faf6;
+  border-color: #CDB59C;
+  background: #FBF7F0;
   color: var(--primary-hover);
 }
 
@@ -403,7 +469,7 @@ button {
 }
 
 .button-danger:hover:not(:disabled) {
-  background: #B91C1C;
+  background: #8F342D;
 }
 
 .button:disabled {
@@ -435,7 +501,7 @@ button {
 .preview-panel {
   min-width: 0;
   padding: 24px;
-  background: #f0f3ed;
+  background: #F2EBE1;
 }
 
 .preview-heading {
@@ -477,7 +543,7 @@ button {
   margin: 0 auto 15px;
   place-items: center;
   border-radius: 13px;
-  background: #e5ecdc;
+  background: #EEE2D3;
   color: var(--primary);
   font-size: 24px;
 }
@@ -505,7 +571,7 @@ button {
   overflow: hidden;
   background: var(--primary);
   color: #fff;
-  box-shadow: 0 15px 30px rgba(45, 59, 30, .2);
+  box-shadow: 0 15px 30px rgba(62, 44, 35, .2);
 }
 
 .badge-card::before {
@@ -614,8 +680,8 @@ button {
 
 .recent-item:hover {
   transform: translateY(-2px);
-  border-color: #cbd6c0;
-  box-shadow: 0 8px 20px rgba(31, 41, 55, .07);
+  border-color: #D3B99D;
+  box-shadow: 0 8px 20px rgba(62, 44, 35, .08);
 }
 
 .recent-avatar {
@@ -670,11 +736,11 @@ dialog {
   padding: 0;
   border: 1px solid var(--border);
   border-radius: 16px;
-  box-shadow: 0 25px 80px rgba(23, 33, 12, .32);
+  box-shadow: 0 25px 80px rgba(33, 23, 17, .36);
 }
 
 dialog::backdrop {
-  background: rgba(25, 32, 21, .48);
+  background: rgba(34, 24, 18, .52);
   backdrop-filter: blur(3px);
 }
 
@@ -722,6 +788,18 @@ textarea:focus {
   padding: 0 25px 25px;
 }
 
+@media (max-width: 900px) and (min-width: 651px) {
+  .topbar {
+    gap: 20px;
+    padding-right: 24px;
+    padding-left: 24px;
+  }
+
+  .topbar nav {
+    gap: 14px;
+  }
+}
+
 @media (max-width: 980px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
@@ -741,7 +819,7 @@ textarea:focus {
   }
 }
 
-@media (max-width: 650px) {
+@media (max-width: 680px) {
   .topbar {
     min-height: 0;
     flex-wrap: wrap;
@@ -763,6 +841,10 @@ textarea:focus {
 
   .topbar nav a {
     font-size: 12px;
+  }
+
+  .topbar nav a i {
+    display: none;
   }
 
   .status-dot {
@@ -795,6 +877,18 @@ textarea:focus {
 
   .recent-list {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-stat:last-child {
+    grid-column: 1 / -1;
+  }
+
+  .dashboard-stat {
+    padding: 13px;
   }
 
   .bulk-box {
