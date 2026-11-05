@@ -1,0 +1,64 @@
+.editor-section-head h2,
+.editor-page .layout-library h2 {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.editor-section label > input:not([type='checkbox']):not([type='color']),
+.editor-section select,
+.settings-card label > input[type='text'],
+.settings-card label > input:not([type]),
+.sheet-table td input {
+  font-family: 'Inter', 'Segoe UI', sans-serif;
+}
+
+.layered-badge .badge-company,
+.layered-badge .badge-person,
+.layered-badge .badge-photo-placeholder {
+  font-family: 'Inter', 'Segoe UI', sans-serif !important;
+}
+
+.editor-section,
+.layout-library {
+  border-color: var(--border);
+  border-radius: 15px;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, .045);
+}
+
+.editor-section label > input:focus,
+.editor-section select:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 4px var(--focus-ring);
+}
+
+.preset-button {
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .12s ease;
+}
+
+.preset-button:hover {
+  transform: translateY(-1px);
+}
+
+.settings-note,
+.preview-tip {
+  border: 1px solid #e1e8d8;
+  background: #f4f7f0;
+}
+
+.upload-box {
+  border-color: #c4d2b7;
+  border-radius: 11px;
+}
+
+.layout-actions .button {
+  min-height: 38px;
+}
+
+@media (max-width: 760px) {
+  .layout-library {
+    padding: 18px;
+  }
+
+  .layout-library .panel-heading {
+    flex-wrap: wrap;
+  }
+}

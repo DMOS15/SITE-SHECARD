@@ -79,6 +79,9 @@ document.addEventListener('DOMContentLoaded', () => {
       row.querySelector('small').textContent = `${badge.company || 'Empresa não informada'} · ${badge.fileName}.html`;
       row.querySelector('.history-layout').textContent = `Layout: ${badge.layoutName || 'Layout padrão'}`;
       row.querySelector('time').textContent = new Date(badge.createdAt).toLocaleString('pt-BR');
+      row.querySelector('.check').setAttribute('aria-label', `Selecionar ${badge.name}`);
+      row.querySelector('.use-button').setAttribute('aria-label', `Usar crachá de ${badge.name}`);
+      row.querySelector('.delete-button').setAttribute('aria-label', `Excluir crachá de ${badge.name}`);
       row.querySelector('.use-button').onclick = () => { activateBadgeLayout(badge); location.href = `index.html?badge=${encodeURIComponent(badge.id)}`; };
       row.querySelector('.delete-button').onclick = () => removeBadges([badge.id]);
       row.querySelector('.check').onchange = (event) => { if (event.target.checked) selected.add(badge.id); else selected.delete(badge.id); updateSelection(); };

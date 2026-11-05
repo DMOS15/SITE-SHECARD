@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="css/badge-premium.css">
   <link rel="stylesheet" href="css/badge-settings.css">
   <link rel="stylesheet" href="css/badge-layout.css?v=2"><link rel="stylesheet" href="css/flow-fix.css?v=1"><link rel="stylesheet" href="css/layer-editor.css?v=1">
+  <link rel="stylesheet" href="css/modern.css">
+  <link rel="stylesheet" href="css/history.css">
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -18,19 +20,18 @@
   <script defer src="js/qrcode.js?v=6"></script>
   <script defer src="js/pdf.js"></script>
   <script defer src="js/historico.js"></script>
-<style>.selected-panel{position:sticky;top:12px;z-index:4;margin:14px 0;padding:16px 18px;border:1px solid #d4dfc4;border-radius:10px;background:#f0f5e7;color:#48572d}.selected-panel.hidden{display:none}.selected-panel strong{display:block}.selected-person{display:inline-block;margin:10px 12px 0 0;font-weight:600}.selected-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}</style>
 </head>
 <body data-page="history">
-  <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">S</span><span>SHE<span class="brand-accent">CARD</span></span></a><nav><a href="index.html">Gerar crachá</a><a class="active" href="historico.html">Histórico</a><a href="configuracoes.html">Configurações</a></nav><span class="status-dot">Sistema local</span></header>
+  <header class="topbar"><a class="brand" href="index.html"><span class="brand-mark">S</span><span>SHE<span class="brand-accent">CARD</span></span></a><nav aria-label="Navegação principal"><a href="index.html">Gerar crachá</a><a class="active" href="historico.html" aria-current="page">Histórico</a><a href="configuracoes.html">Configurações</a></nav><span class="status-dot">Sistema local</span></header>
   <main class="page-shell history-page">
     <section class="intro"><div><p class="eyebrow">Biblioteca local</p><h1>Histórico de crachás.</h1><p class="intro-copy">Registros preservados neste navegador para consulta e reimpressão.</p></div><a href="index.html" class="button button-dark">＋ Novo crachá</a></section>
     <section class="history-panel">
-      <div class="history-toolbar"><div class="search-wrap"><span>🔍</span><input id="history-search" placeholder="Pesquisar por nome, empresa ou NOME_ARQUIVO"></div><button id="refresh-history" class="button button-light" type="button">Atualizar histórico</button><button id="select-all" class="button button-light" type="button">Selecionar todos</button><span id="selection-count" class="selection-count">0 selecionados</span><button id="delete-selected" class="button button-danger" type="button" disabled>Excluir selecionados</button><button id="export-history" class="button button-light" type="button">Exportar histórico</button><button id="generate-pdf" class="button button-dark" disabled>Gerar PDF</button></div>
-      <div id="history-sync-status" class="settings-note" aria-live="polite">Cache local pronto</div>
+      <div class="history-toolbar history-controls"><div class="search-wrap" role="search"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><circle cx="11" cy="11" r="7" stroke="currentColor" stroke-width="1.8"></circle><path d="m16 16 4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path></svg><input id="history-search" type="search" aria-label="Pesquisar colaborador por nome, empresa ou NOME_ARQUIVO" placeholder="Pesquisar colaborador..." autocomplete="off"></div><div class="history-toolbar-actions" role="group" aria-label="Ações do histórico"><button id="refresh-history" class="button button-light" type="button">Atualizar histórico</button><button id="select-all" class="button button-light" type="button">Selecionar todos</button><span id="selection-count" class="selection-count" aria-live="polite">0 selecionados</span><button id="delete-selected" class="button button-danger" type="button" disabled>Excluir selecionados</button><button id="export-history" class="button button-light" type="button">Exportar histórico</button><button id="generate-pdf" class="button button-dark" type="button" disabled>Gerar PDF</button></div></div>
+      <div id="history-sync-status" class="settings-note history-sync-status" aria-live="polite">Cache local pronto</div>
       <aside id="selected-panel" class="selected-panel hidden"><strong>Selecionados (<span id="selected-total">0</span>)</strong><div id="selected-list"></div><div class="selected-actions"><button id="selected-generate-pdf" class="button button-dark" type="button">Gerar PDF</button><button id="selected-print" class="button button-light" type="button">Imprimir</button><button id="clear-selection" class="button button-light" type="button">Limpar seleção</button></div></aside>
-      <div id="history-list"></div>
-      <div class="history-toolbar"><button id="history-previous" class="button button-light" type="button">Anterior</button><span id="history-page">Página 1 de 1</span><button id="history-next" class="button button-light" type="button">Próxima</button></div>
-      <div id="history-empty" class="empty-history hidden"><div class="empty-icon">🔍</div><strong>Nenhum crachá encontrado</strong><span>Gere um novo crachá ou ajuste sua pesquisa.</span></div>
+      <div id="history-list" class="history-list"></div>
+      <div class="history-toolbar history-pagination" aria-label="Paginação do histórico"><button id="history-previous" class="button button-light" type="button">Anterior</button><span id="history-page">Página 1 de 1</span><button id="history-next" class="button button-light" type="button">Próxima</button></div>
+      <div id="history-empty" class="empty-history hidden" role="status"><div class="empty-icon" aria-hidden="true">⌕</div><strong>Nenhum crachá encontrado</strong><span>Gere um novo crachá ou ajuste sua pesquisa.</span></div>
     </section>
   </main>
   <div id="pdf-export-container" class="export-stage" aria-hidden="true"><div id="export-card"></div></div>

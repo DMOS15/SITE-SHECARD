@@ -36,6 +36,8 @@ index.html
 historico.html
 configuracoes.html
 css/style.css
+css/modern.css
+css/history.css
 css/print.css
 css/badge-premium.css
 css/badge-settings.css
